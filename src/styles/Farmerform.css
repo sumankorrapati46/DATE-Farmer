@@ -1,0 +1,207 @@
+
+.form-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 40px;
+    background-color: #f9f9f9;
+    width: 100%;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .form-left {
+    width: 60%;
+    padding-right: 30px;
+  }
+
+  
+  .form-right {
+    width: 40%;
+    display: flex;
+    
+  }
+
+  .form-grid{
+    display: flex;
+    width: 900px;
+    height: auto;
+    gap: 10%;
+  }
+
+
+
+ .photo-box{
+    width: 120px;
+    height: 120px;
+    border: 1px solid #333;
+ }
+  
+  .form-image {
+    width: auto;
+    height: 730px;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  form { 
+    width: auto;
+    height: auto;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  }
+  
+  h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+    font-weight: 600;
+  }
+  
+  label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 8px;
+    margin-top: 18px;
+    color: #333;
+  }
+  
+  .required {
+    color: red;
+    margin-left: 2px;
+  }
+  
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+    margin-top: 5px;
+  }
+  
+  input:focus,
+  select:focus,
+  textarea:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+  
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+  
+  p {
+    color: red;
+    font-size: 13px;
+    margin-top: 4px;
+  }
+  
+  .btn-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 30px;
+  }
+  
+  button {
+    padding: 10px 24px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    color: whitesmoke;
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+  }
+  
+  button:hover {
+    background-color:#388d19;
+  }
+  
+  button[type="button"] {
+    background-color: #006838;
+  }
+  
+  button[type="button"]:hover {
+    background-color: #388d19;
+  }
+
+  .address-field{
+    width: 900px;
+    height: auto;
+  }
+
+  .profes-field{
+    width: 900px;
+    height: auto;
+  }
+
+  .currentform-grid {
+    display: flex;
+    align-items: flex-end; 
+    gap: 10%;
+
+  }
+
+  .current-field{
+    width: 900px;
+    height: auto;
+  }
+  .proposedform-grid{
+    display: flex;
+    gap: 10%;
+
+  }
+
+  .proposed-field{
+    width: 900px;
+    height: auto;
+  }
+
+  .irrigation-field{
+    width: 900px;
+    height: auto;
+  }
+
+  .other-field{
+    width: 900px;
+    height: auto;
+  }
+  .portal-form-group{
+    width: 900px;
+    height: 400px;
+
+  }
+  .viewcontent-container{
+    width: 900px;
+    height: auto;
+  }
+  
+  
+  @media (max-width: 900px) {
+    .form-wrapper {
+      flex-direction: column;
+      padding: 20px;
+    }
+  
+    .form-left,
+    .form-right {
+      width: 100%;
+      padding: 0;
+    }
+  
+    .form-right {
+      margin-top: 20px;
+    }
+  
+    form {
+      padding: 20px;
+    }
+  }
+  
