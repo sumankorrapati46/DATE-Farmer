@@ -72,7 +72,11 @@ const validationSchemas = [
     selectCrop: Yup.string().required("Crop selection is required"),
     netIncome: Yup.string().required("Net Income is required"),
     soilTest: Yup.string().required("Soil Test is required"),
-    soilTestCertificate: Yup.mixed().required("Soil Test Certificate is required"),
+    soilTestCertificate: Yup.string().when("soilTest", {
+      is: (val) => val === "Yes",
+      then: Yup.string().required("Soil Test Certificate is required"),
+      otherwise: Yup.string().notRequired(),
+    }),
   }),
 
   // Step 5: Proposed Crop
@@ -189,12 +193,13 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
     register,
     handleSubmit,
     trigger,
+    watch, 
     formState: { errors },
     setValue,
     totalSteps,
     props,
   } = methods;
-
+  const soilTestValue = watch("soilTest");
   const onSubmit = async (data) => {
     const valid = await trigger();
     if (!valid) return;
@@ -236,6 +241,22 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
   }, [currentStep, setValue]);
 
     const [file, setFile] = useState(null);
+    useEffect(() => {
+      axios
+        .get("https://api.example.com/crop-info", {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        })
+        .then((response) => {
+          const data = response.data;
+          setValue("surveyNumber", data.surveyNumber);
+          setValue("geoTag", data.geoTag);
+          setValue("cropType", data.cropType);
+          setValue("soilTest", data.soilTest);
+          setValue("totalLandHolding", data.totalLandHolding);
+          setValue("netIncome", data.netIncome);
+        })
+        .catch((error) => console.error("Error fetching crop info:", error));
+    }, [setValue]);
     const [photo, setPhoto] = useState(null);
   
     const handlePhotoChange = (e) => {
@@ -317,7 +338,7 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
                 <p>{errors.nationality?.message}</p>
 
                 <label>Date of Birth (DD/MM/YYYY) <span className="required">*</span>
-                  <input {...register("dob")} />
+                  <input type="text" {...register("dob")} />
                 </label>
                 <p>{errors.dob?.message}</p>
 
@@ -403,7 +424,7 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
             {currentStep === 3 && (
                 <>
                <div className="current-field">
-                 <form className="crop-form" onSubmit={handleSubmit(onSubmit)}>
+                
                    <div className="currentform-grid">
                    <div className="cropform-columnleft">
                    <div className="form-group">
@@ -460,12 +481,16 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
                     <p>{errors.soilTest?.message}</p>
 
                     <label>Soil Test Certificate <span className="required">*</span>
-                     <input {...register("soilTestCertificate")} />
-                    </label>
-                    <p>{errors.soilTestCertificate?.message}</p>
+  <input
+    {...register("soilTestCertificate")}
+    disabled={soilTestValue === "No"}
+    placeholder={soilTestValue === "No" ? "Not required" : ""}
+  />
+</label>
+<p>{errors.soilTestCertificate?.message}</p>
                     </div>
                     </div>
-                    </form>
+                    
               </div>
               </>
             )}
@@ -626,27 +651,7 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
               <p>{errors.ppbNumber?.message}</p>
 
                  <label className="doclabel">Passbook <span className="required">*</span></label>
-              <div
-                  className="photo-box"
-                  onClick={() => document.getElementById("photoInput").click()}
-                   >
-                  {photo ? (
-                   <img src={photo} alt="Uploaded" className="preview-img" />
-                              ) : (
-                  "Click to upload"
-          )}
-             </div>
-            <input
-             type="file"
-             accept="image/*"
-              id="photoInput"
-               style={{ display: "none" }}
-                onChange={(e) => {
-                 const file = e.target.files[0];
-                    setValue("passbookPhoto", file);
-                     trigger("passbookPhoto");
-            }}
-                />
+                 <input type="file" onChange={(e) => setFile(e.target.files[0])} />
                 <p>{errors.passbookPhoto?.message}</p>
              </div>
            )}

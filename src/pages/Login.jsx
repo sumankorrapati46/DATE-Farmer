@@ -19,6 +19,7 @@ const Login= () => {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm({
     resolver: yupResolver(schema),
   });
@@ -28,6 +29,10 @@ const Login= () => {
       const response = await axios.post("https://your-api-endpoint.com/login", data);
       alert("Login Successful!");
       console.log(response.data);
+      if (response.success) {
+        reset();
+      }
+
     } catch (error) {
       alert("Login Failed!");
       console.error(error);
@@ -59,7 +64,7 @@ const Login= () => {
             <button type="submit" className="login-btn">Login</button>
             <div className="form-links">
               <a href="/forgot-password">Forgot your password?</a>
-              <a href="/forgot-id">Forgot your ID?</a>
+              <a href="/forgot-username">Forgot your ID?</a>
             </div>
           </form>
         </div>

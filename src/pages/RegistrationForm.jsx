@@ -47,8 +47,9 @@ const RegistrationForm = () => {
     }
   };
 
+  
   return (
-    <div className="registration-page" style={{ backgroundImage: `url(${background})` }}>
+    <form className="registration-page" onSubmit={handleSubmit(onSubmit)} style={{ backgroundImage: `url(${background})` }}>
       
       <img src={logo} alt="Logo" className="registration-logo" />
 
@@ -59,9 +60,8 @@ const RegistrationForm = () => {
       <div className="registration-form-container">
         <h2>Registration Form</h2>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="registration-form" onSubmit={handleSubmit(onSubmit)}> 
           <div className="registration-grid">
-            
             <div className="form-column">
               <div className="registrationform-group">
                 <label>First Name *</label>
@@ -95,6 +95,7 @@ const RegistrationForm = () => {
               <div className="registrationform-group">
                 <label>Email Address *</label>
                 <input type="email" {...register("email")} />
+                  
                 <p className="error">{errors.email?.message}</p>
               </div>
 
@@ -103,9 +104,6 @@ const RegistrationForm = () => {
                 <input type="password" {...register("password")} />
                 <p className="error">{errors.password?.message}</p>
               </div>
-              <button type="submit" disabled={loading} className="submit-btn">
-                 {loading ? "Registering..." : "Register"}
-              </button>
             </div>
 
             
@@ -150,15 +148,14 @@ const RegistrationForm = () => {
                 <input type="password" {...register("confirmPassword")} />
                 <p className="error">{errors.confirmPassword?.message}</p>
               </div>
-              <button type="reset" className="cancel-btn">Cancel</button>
-
             </div>
           </div>
-
-          
-        </form>
+        </div>
+        <button type="submit" disabled={loading} className="submit-btn">
+                 {loading ? "Registering..." : "Register"}
+              </button>
       </div>
-    </div>
+    </form>
   );
 };
 

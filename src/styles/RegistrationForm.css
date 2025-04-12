@@ -12,7 +12,7 @@
     position: absolute;
     top: 30px;
     right: 40px;
-    width: 250px;
+    width: 150px;
   }
   
   .registration-form-container {
@@ -20,12 +20,18 @@
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-    max-width: 800px;
-    width: 70%;
-    height: 800px;
+    width: 700px;
+    height: 750px;
     margin-right: 13%;
    
   }
+  .registration-form{
+   width: 650px; 
+   height: 550px;
+   align-items: center;
+
+  }
+
   .registration-form-title{
     margin-right: 40%;
     margin-top: 5%;
@@ -71,15 +77,13 @@
   
   .submit-btn {
     display: block;
-    width: 100%;
     background: #006838;
-    color: white;
-    padding: 20px;
-    border: none;
+    width: 93%;
     border-radius: 5px;
     font-size: 18px;
-    cursor: pointer;
     margin-top: 50px;
+    align-items: flex-start;
+   
   }
   
   .submit-btn:disabled {
@@ -87,19 +91,4 @@
     cursor: not-allowed;
   }
   
-  .cancel-btn {
-    display: block;
-    width: 100%;
-    background-color: #f44336;
-    color: white;
-    padding: 20px;
-    border: none;
-    border-radius: 5px;
-    font-size: 18px;
-    cursor: pointer;
-    margin-top: 50px;
-  }
   
-  .cancel-btn:disabled {
-    background-color: #f44336;
-  } 

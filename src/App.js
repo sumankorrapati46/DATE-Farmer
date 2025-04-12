@@ -3,14 +3,14 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from "react-route
 import FarmerForm from "./pages/Formerform";
 import Login from "./pages/Login";
 import Register from "./pages/RegistrationForm";
-import ForgotUsername from "./pages/ForgotUsername";
+import ForgotUsername from "./pages/ForgotUserid";
 import ForgotPassword from "./pages/ForgotPassword";
 import logo1 from "./assets/leftlogo.png";
 import logo2 from "./assets/rightlogo.png";
 import "./App.css"
 
 
-function Layout({ children, currentStep = 0 }) {
+function Layout({ children, currentStep = 0, onStepChange }) {
   const steps = [
     "🏛️ Personal Information",
     "📌 Address",
@@ -37,6 +37,8 @@ function Layout({ children, currentStep = 0 }) {
   <div
     key={index}
     className={`infonav-item ${index === currentStep ? "active" : ""}`}
+    onClick={() => onStepChange && onStepChange(index)}
+              style={{ cursor: "pointer" }}
   >
     {label}
   </div>
