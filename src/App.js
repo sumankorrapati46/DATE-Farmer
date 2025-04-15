@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Register from "./pages/RegistrationForm";
 import ForgotUsername from "./pages/ForgotUserid";
 import ForgotPassword from "./pages/ForgotPassword";
+import FarmerView from "./pages/Viewfarmer"
 import logo1 from "./assets/leftlogo.png";
 import logo2 from "./assets/rightlogo.png";
 import "./App.css"
@@ -33,16 +34,16 @@ function Layout({ children, currentStep = 0, onStepChange }) {
 
       <div className="infomiddle-container">
         <nav className="infonav-links">
-        {steps.map((label, index) => (
-  <div
-    key={index}
-    className={`infonav-item ${index === currentStep ? "active" : ""}`}
-    onClick={() => onStepChange && onStepChange(index)}
+          {steps.map((label, index) => (
+            <div
+              key={index}
+              className={`infonav-item ${index === currentStep ? "active" : ""}`}
+              onClick={() => onStepChange(index)}
               style={{ cursor: "pointer" }}
-  >
-    {label}
-  </div>
-))}
+            >
+              {label}
+            </div>
+          ))}
         </nav>
       </div>
 
@@ -54,7 +55,7 @@ function Layout({ children, currentStep = 0, onStepChange }) {
 
 function AppContent() {
   const location = useLocation();
-  const noFrameRoutes = ["/login", "/register", "/forgot-username", "/forgot-password"];
+  const noFrameRoutes = ["/login", "/register", "/forgot-username", "/forgot-password","/view-farmer"];
 
   if (noFrameRoutes.includes(location.pathname)) {
     return (
@@ -63,33 +64,33 @@ function AppContent() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-username" element={<ForgotUsername />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/view-farmer" element={<FarmerView />} />
       </Routes>
     );
   }
 
- 
-  return (
-    <Routes>
-      <Route
-        path="/*"
-        element={
-          <FarmerFormWrapper />
-        }
-      />
-    </Routes>
-  );
+
+
+return (
+  <Routes>
+    <Route
+      path="/*"
+      element={
+        <FarmerFormWrapper />
+      }
+    />
+  </Routes>
+);
 }
-
-
-function FarmerFormWrapper() {
-  const [currentStep, setCurrentStep] = useState(0);
-
-  return (
-    <Layout currentStep={currentStep}>
-      <FarmerForm currentStep={currentStep} setCurrentStep={setCurrentStep} />
-    </Layout>
-  );
-}
+  function FarmerFormWrapper() {
+    const [currentStep, setCurrentStep] = useState(0);
+  
+    return (
+      <Layout currentStep={currentStep} onStepChange={setCurrentStep}>
+        <FarmerForm currentStep={currentStep} setCurrentStep={setCurrentStep} />
+      </Layout>
+    );
+  }
 
 function App() {
   return (

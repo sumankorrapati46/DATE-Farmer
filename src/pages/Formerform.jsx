@@ -1,23 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useNavigate } from 'react-router-dom';
 import * as Yup from "yup";
 import axios from "axios";
 import farmImage from "../assets/farmImage.png";
 import "../styles/Farmerform.css";
-
-const steps = [
-  "Personal Information",
-  "Address",
-  "Professional Information",
-  "Current Crop Information",
-  "Proposed Crop Information",
-  "Irrigation Details",
-  "Other Information",
-  "Documents",
-  "Portal Access",
-  "View Farmer",
-];
 
 const validationSchemas = [
   // Step 1: Personal Information
@@ -36,7 +24,10 @@ const validationSchemas = [
     dob: Yup.string()
       .required("Date of Birth is required")
       .matches(/^\d{2}\/\d{2}\/\d{4}$/, "DOB must be in DD/MM/YYYY format"),
-  
+    ContactNumber: Yup.string()
+      .matches(/^[0-9]{10}$/, "Enter a valid 10-digit number")
+      .required(" ContactNumber is required"),
+
     fatherName: Yup.string().required("Father Name is required"),
   
     alternativeNumber: Yup.string()
@@ -72,11 +63,7 @@ const validationSchemas = [
     selectCrop: Yup.string().required("Crop selection is required"),
     netIncome: Yup.string().required("Net Income is required"),
     soilTest: Yup.string().required("Soil Test is required"),
-    soilTestCertificate: Yup.string().when("soilTest", {
-      is: (val) => val === "Yes",
-      then: Yup.string().required("Soil Test Certificate is required"),
-      otherwise: Yup.string().notRequired(),
-    }),
+    soilTestCertificate: Yup.mixed().required("Soil Test Certificate is required"),
   }),
 
   // Step 5: Proposed Crop
@@ -182,8 +169,9 @@ const validationSchemas = [
 
 
 const FarmerForm = ({ currentStep, setCurrentStep }) => {
+  const navigate = useNavigate();
+  const [isEditing, setIsEditing] = useState(false);
   
-
   const methods = useForm({
     resolver: yupResolver(validationSchemas[currentStep]),
     mode: "onBlur",
@@ -193,13 +181,15 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
     register,
     handleSubmit,
     trigger,
-    watch, 
+
     formState: { errors },
     setValue,
+    watch,
+    getValues,
     totalSteps,
     props,
   } = methods;
-  const soilTestValue = watch("soilTest");
+
   const onSubmit = async (data) => {
     const valid = await trigger();
     if (!valid) return;
@@ -213,52 +203,26 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
     }
   };
 
-  const handlePrev = () => {
-    setCurrentStep((prev) => prev - 1);
-  };
-
-  useEffect(() => {
-    setCurrentStep(currentStep); // call this on mount or step change
-  }, [currentStep]);
-
-  const goToNextStep = () => {
-    if (currentStep < totalSteps - 1) {
-      setCurrentStep(currentStep + 1);
-      props.setCurrentStep(currentStep + 1); // notify Layout
+  const handleNext = async () => {
+    const isStepValid = await trigger();
+    if (!isStepValid) return;
+  
+    if (currentStep < steps.length - 1) {
+      handleNext((prev) => prev + 1);
+    } else {
+      // Final step reached, submit data or redirect
+      // Submit form here if needed
+      handleSubmit(onSubmit)(); // Optional: if you want to submit before navigating
+      navigate('/view-farmer', { state: getValues() });
     }
   };
 
-  useEffect(() => {
-    if (currentStep === 0) {
-      axios
-        .get("https://api.example.com/user/1") // Replace with actual API
-        .then((res) => {
-          const fields = Object.keys(res.data);
-          fields.forEach((field) => setValue(field, res.data[field]));
-        })
-        .catch((err) => console.error("Error fetching user data:", err));
-    }
-  }, [currentStep, setValue]);
+  
 
     const [file, setFile] = useState(null);
-    useEffect(() => {
-      axios
-        .get("https://api.example.com/crop-info", {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        })
-        .then((response) => {
-          const data = response.data;
-          setValue("surveyNumber", data.surveyNumber);
-          setValue("geoTag", data.geoTag);
-          setValue("cropType", data.cropType);
-          setValue("soilTest", data.soilTest);
-          setValue("totalLandHolding", data.totalLandHolding);
-          setValue("netIncome", data.netIncome);
-        })
-        .catch((error) => console.error("Error fetching crop info:", error));
-    }, [setValue]);
+
     const [photo, setPhoto] = useState(null);
-  
+
     const handlePhotoChange = (e) => {
       const file = e.target.files[0];
       if (file && file.type.startsWith("image/")) {
@@ -270,7 +234,18 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
       }
     };
 
-
+    const steps = [
+      "Personal Information",
+      "Address",
+      "Professional Information",
+      "Current Crop Information",
+      "Proposed Crop Information",
+      "Irrigation Details",
+      "Other Information",
+      "Documents",
+      "Portal Access",
+      "View Farmer",
+    ];
             
 
   return (
@@ -338,7 +313,7 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
                 <p>{errors.nationality?.message}</p>
 
                 <label>Date of Birth (DD/MM/YYYY) <span className="required">*</span>
-                  <input type="text" {...register("dob")} />
+                  <input {...register("dob")} />
                 </label>
                 <p>{errors.dob?.message}</p>
 
@@ -346,6 +321,11 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
                   <input {...register("fatherName")} />
                 </label>
                 <p>{errors.fatherName?.message}</p>
+
+                <label>Contact Number <span className="required">*</span>
+                  <input {...register("ContactNumber")} />
+                </label>
+                <p>{errors.alternativeNumber?.message}</p>
 
                 <label>Alternative Number <span className="required">*</span>
                   <input {...register("alternativeNumber")} />
@@ -481,13 +461,9 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
                     <p>{errors.soilTest?.message}</p>
 
                     <label>Soil Test Certificate <span className="required">*</span>
-  <input
-    {...register("soilTestCertificate")}
-    disabled={soilTestValue === "No"}
-    placeholder={soilTestValue === "No" ? "Not required" : ""}
-  />
-</label>
-<p>{errors.soilTestCertificate?.message}</p>
+                     <input {...register("soilTestCertificate")} />
+                    </label>
+                    <p>{errors.soilTestCertificate?.message}</p>
                     </div>
                     </div>
                     
@@ -563,29 +539,9 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
                   <option value="Drip">Drip</option>
                 </select>
                 </label>
-                <label>Borewell Discharge (LPH) <span className="required">*</span>
-            <input {...register("borewellDischarge")} />
-            </label>
-             <p>{errors.borewellDischarge?.message}</p>
-
-            <label>Summer Discharge <span className="required">*</span>
-            <input {...register("summerDischarge")} />
-           </label>
-           <p>{errors.summerDischarge?.message}</p>
-
-            <label>Borewell Location <span className="required">*</span>
-            <input {...register("borewellLocation")} />
-           </label>
-             <p>{errors.borewellLocation?.message}</p>
-
-                <p>{errors.irrigationType?.message}</p>
-                <p> Borewell wise Discharge in LPH
-                    Discharge during summer months
-                    Borewell Location
-                </p>
                 </div>
-              
               </div>
+          
             )}
 
     {currentStep === 6 && (
@@ -651,7 +607,27 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
               <p>{errors.ppbNumber?.message}</p>
 
                  <label className="doclabel">Passbook <span className="required">*</span></label>
-                 <input type="file" onChange={(e) => setFile(e.target.files[0])} />
+              <div
+                  className="photo-box"
+                  onClick={() => document.getElementById("photoInput").click()}
+                   >
+                  {photo ? (
+                   <img src={photo} alt="Uploaded" className="preview-img" />
+                              ) : (
+                  "Click to upload"
+          )}
+             </div>
+            <input
+             type="file"
+             accept="image/*"
+              id="photoInput"
+               style={{ display: "none" }}
+                onChange={(e) => {
+                 const file = e.target.files[0];
+                    setValue("passbookPhoto", file);
+                     trigger("passbookPhoto");
+            }}
+                />
                 <p>{errors.passbookPhoto?.message}</p>
              </div>
            )}
@@ -676,15 +652,14 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
                 <p className="error">{errors.access?.message}</p>
               </div>
             )}
+      
 
-            
-             
             <div className="btn-group">
             <button
              type="button"
               disabled={currentStep === 0}
               onClick={() => setCurrentStep(currentStep - 1)}
->
+              >
              Previous
               </button>
 
@@ -693,10 +668,10 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
                 disabled={currentStep === totalSteps - 1}
                 onClick={() => setCurrentStep(currentStep + 1)}
               >
-             Next
+               Next
               </button>
                </div>
-              </form>
+             </form>
           </FormProvider>
          </div>
         <div className="form-right">

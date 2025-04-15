@@ -14,14 +14,14 @@
     right: 40px;
     width: 150px;
   }
-  
+   
   .registration-form-container {
     background-color: rgba(245, 245, 245, 0.479);
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-    width: 700px;
-    height: 750px;
+    width: 600px;
+    height: 650px;
     margin-right: 13%;
    
   }
@@ -51,6 +51,8 @@
   
   .form-column {
     flex: 1;
+    width:100%;
+    height: 100%;
   }
   
   .registrationform-group {

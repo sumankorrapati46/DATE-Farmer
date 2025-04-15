@@ -26,14 +26,16 @@
 
 .infonav-links {
   display: flex;
+  padding: 25px;
   overflow-x: hidden; 
   white-space: nowrap; 
   background: #006838;
-  padding: 25px;
+  color: rgba(255, 255, 255, 0.477);
   border-radius: 8px;
   scroll-behavior:smooth;
   justify-content: center;
   font-size: 16px;
+  
   
 }
 
@@ -41,12 +43,13 @@
 .infonav-links:hover,
 .infonav-links:focus-within {
   overflow-x: auto;
+  
 }
 
 
 .infonav-links a {
   display: inline-block;
-  padding: 10px 15px;
+  padding: 0px 25px;
   margin: 0 5px;
   color: white;
   font-weight: bold;
@@ -67,12 +70,13 @@
 
 .infonav-links::-webkit-scrollbar-thumb:hover {
   background: white;
+
 }
 
 .infonav-item.active {
   font-size: 20px;
   font-weight: bold;
-  background-color: #02a3fa; 
-  border-bottom: 4px solid #04079a;
   border-radius: 8px;
+  color:whitesmoke;
+  
 }
