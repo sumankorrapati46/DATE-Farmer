@@ -205,3 +205,42 @@ button[type="button"]:hover {
     padding: 20px;
   }
 }
+
+/* Popup container */
+.popup {
+  position: fixed; /* Fix the position of the popup */
+  top: 0; /* Position it at the top of the page */
+  left: 50%;
+  transform: translateX(-50%); /* Center horizontally */
+  background-color: rgba(0, 128, 0, 0.8); /* Green background with transparency */
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  z-index: 9999; /* Ensure the popup is above other content */
+  width: 100%; /* Optional: full width or you can set a specific width */
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Optional: add shadow for visual effect */
+}
+
+/* Popup content styling */
+.popup-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Close button styling */
+.popup-content button {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background-color: #f44336; /* Red background for close button */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.popup-content button:hover {
+  background-color: #d32f2f; /* Darker red on hover */
+}

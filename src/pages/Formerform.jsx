@@ -1,384 +1,280 @@
-import React, { useState, useEffect } from "react";
-import { useForm, FormProvider } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { useNavigate } from 'react-router-dom';
-import * as Yup from "yup";
-import axios from "axios";
+import React, { useState } from "react"; // Import React and useState
+import { useForm, FormProvider, Controller } from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
+import Select from 'react-select';
+import * as yup from 'yup';
+import { parse, isValid, differenceInYears } from "date-fns";
 import farmImage from "../assets/farmImage.png";
 import "../styles/Farmerform.css";
 
-const validationSchemas = [
-  // Step 1: Personal Information
-  Yup.object().shape({
 
-    firstName: Yup.string().required("First Name is required"),
-    middleName: Yup.string().required("Middle Name is required"),
-    lastName: Yup.string().required("Last Name is required"),
-  
-    gender: Yup.string().required("Gender is required"),
-  
-    salutation: Yup.string().required("Salutation is required"),
-  
-    nationality: Yup.string().required("Nationality is required"),
-  
-    dob: Yup.string()
-      .required("Date of Birth is required")
-      .matches(/^\d{2}\/\d{2}\/\d{4}$/, "DOB must be in DD/MM/YYYY format"),
-    ContactNumber: Yup.string()
-      .matches(/^[0-9]{10}$/, "Enter a valid 10-digit number")
-      .required(" ContactNumber is required"),
-
-    fatherName: Yup.string().required("Father Name is required"),
-  
-    alternativeNumber: Yup.string()
-      .matches(/^[0-9]{10}$/, "Enter a valid 10-digit number")
-      .required("Alternative Number is required"),
-  
-    alternativeType: Yup.string().required("Alternative No. Type is required"),
+const stepSchemas = [
+  yup.object().shape({
+    firstName: yup.string().required("First Name is required").matches(/^[A-Za-z]{2,26}$/, "First Name must be 2–26 letters only"),
+    middleName: yup.string().required("Middle Name is required").matches(/^[A-Za-z]*$/, "Middle Name must contain only letters"),
+    lastName: yup.string().required("Last Name is required").matches(/^[A-Za-z]{2,26}$/, "Last Name must be 2–26 letters only"),
+    gender: yup.string().required("Gender is required"),
+    salutation: yup.string().oneOf(["D/O", "S/O", "W/O"], "Please select a valid salutation").required("Salutation is required"),
+    nationality: yup.mixed()
+  .required("Nationality is required")
+  .transform((value) => (value?.value ? value.value : value))
+  .test("is-string", "Nationality must be a string", (value) => typeof value === "string"),
+    dob: yup.string().required("Date of Birth is required")
+      .test("valid-format", "Enter date as DD/MM/YYYY", (value) => {
+        const parsed = parse(value, "dd/MM/yyyy", new Date());
+        return isValid(parsed);
+      })
+      .test("age-limit", "Age must be between 18 and 90 years", (value) => {
+        const parsed = parse(value, "dd/MM/yyyy", new Date());
+        if (!isValid(parsed)) return false;
+        const age = differenceInYears(new Date(), parsed);
+        return age >= 18 && age <= 90;
+      }),
+    fatherName: yup.string().required("Father Name is required"),
+    alternativeNumber: yup.string()
+      .nullable()
+      .notRequired()
+      .matches(/^\d{10}$/, "Enter a valid 10-digit alternative number")
+      .transform((value, originalValue) => (originalValue.trim() === "" ? null : value)),
+    contactNumber: yup.string()
+      .nullable()
+      .notRequired()
+      .matches(/^\d{10}$/, "Enter a valid 10-digit contact number")
+      .transform((value, originalValue) => (originalValue.trim() === "" ? null : value)),
+    alternativeType: yup.string().required("Alternative type is required").oneOf(["Father", "Mother", "Brother", "Sister", "Son", "Daughter", "Spouse", "Other"], "Select a valid alternative type"),
   }),
-
+  // Add other step schemas
   // Step 2: Address
-  Yup.object().shape({
-    country: Yup.string().required("Country is required"),
-    state: Yup.string().required("State is required"),
-    district: Yup.string().required("District is required"),
-    block: Yup.string().required("Block (mandal) is required"),
-    village: Yup.string().required("Village is required"),
-    pincode: Yup.string()
+  yup.object().shape({
+    country: yup.string().required("Country is required"),
+    state: yup.string().required("State is required"),
+    district: yup.string().required("District is required"),
+    block: yup.string().required("Block (mandal) is required"),
+    village: yup.string().required("Village is required"),
+    pincode: yup.string()
       .required("Pincode is required")
       .matches(/^\d{6}$/, "Pincode must be a 6-digit number"),
   }),
 
   // Step 3: Professional Information
-  Yup.object().shape({
-    education: Yup.string().required("Education is required"),
-    experience: Yup.string().required("Experience is required"),
+  yup.object().shape({
+    education: yup.string().required("Education is required"),
+    experience: yup.string().required("Experience is required"),
   }),
 
   // Step 4: Current Crop
-  Yup.object().shape({
-    surveyNumber: Yup.string().required("Survey Number is required"),
-    totalLandHolding: Yup.string().required("Total Land Holding is required"),
-    geoTag: Yup.string().required("Geo-tag is required"),
-    selectCrop: Yup.string().required("Crop selection is required"),
-    netIncome: Yup.string().required("Net Income is required"),
-    soilTest: Yup.string().required("Soil Test is required"),
-    soilTestCertificate: Yup.mixed().required("Soil Test Certificate is required"),
+  yup.object().shape({
+    surveyNumber: yup.string().required("Survey Number is required"),
+    totalLandHolding: yup.string().required("Total Land Holding is required"),
+    geoTag: yup.string().required("Geo-tag is required"),
+    selectCrop: yup.string().required("Crop selection is required"),
+    netIncome: yup.string().required("Net Income is required"),
+    soilTest: yup.string().required("Soil Test is required"),
+    soilTestCertificate: yup.mixed().required("Soil Test Certificate is required"),
   }),
-
-  // Step 5: Proposed Crop
-  Yup.object().shape({
-    surveyNumber: Yup.string().required("Survey Number is required"),
-    geoTag: Yup.string().required("Geo-tag is required"),
-    cropType: Yup.string().required("Crop Type is required"),
-    soilTest: Yup.string().required("Soil Test selection is required"),
-    totalLandHolding: Yup.string().required("Total Land Holding is required"),
-    netIncome: Yup.string().required("Net Income is required"),
-    soilTestCertificate: Yup.mixed().required("Soil Test Certificate is required"),
-  }),
-
-  // Step 6: Irrigation Details
-  Yup.object().shape({
-    waterSource: Yup.string().required("Water Source is required"),
-    borewellDischarge: Yup.string().required("Borewell-wise Discharge is required"),
-    summerDischarge: Yup.string().required("Discharge during summer months is required"),
-    borewellLocation: Yup.string().required("Borewell Location is required"),
-  }),
-
-  // Step 7: Bank Information
-  Yup.object().shape({
-    bankName: Yup.string().required("Bank Name is required"),
-  
-    accountNumber: Yup.string()
-      .matches(/^\d{9,18}$/, "Account Number must be 9-18 digits")
-      .required("Account Number is required"),
-  
-    branchName: Yup.string().required("Branch Name is required"),
-  
-    ifscCode: Yup.string()
-      .matches(/^[A-Z]{4}0[A-Z0-9]{6}$/, "Enter a valid IFSC Code")
-      .required("IFSC Code is required"),
-  
-    passbookFile: Yup.mixed()
-      .required("Passbook file is required")
-      .test("fileSize", "File is too large", (value) => {
-        return value && value.size <= 5 * 1024 * 1024; 
-      })
-      .test("fileType", "Unsupported File Format", (value) => {
-        return value && ["image/jpeg", "image/png", "application/pdf"].includes(value.type);
-      }),
-    }),
-
-    Yup.object().shape({
-      documentType: Yup.string()
-        .required("Please select a document type")
-        .notOneOf([""], "Invalid document type"),
-    
-      voterId: Yup.string()
-        .when("documentType", {
-          is: "ID/ Voter Card",
-          then: (schema) => schema.required("Voter ID is required"),
-          otherwise: (schema) => schema.notRequired(),
-        }),
-    
-      aadharNumber: Yup.string()
-        .when("documentType", {
-          is: "Aadhar Number",
-          then: (schema) =>
-            schema
-              .required("Aadhar Number is required")
-              .matches(/^\d{12}$/, "Aadhar number must be 12 digits"),
-          otherwise: (schema) => schema.notRequired(),
-        }),
-    
-      panNumber: Yup.string()
-        .when("documentType", {
-          is: "Pan Number",
-          then: (schema) =>
-            schema
-              .required("PAN Number is required")
-              .matches(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, "Invalid PAN format"),
-          otherwise: (schema) => schema.notRequired(),
-        }),
-    
-      ppbNumber: Yup.string()
-        .when("documentType", {
-          is: "Ppb Number",
-          then: (schema) => schema.required("PPB Number is required"),
-          otherwise: (schema) => schema.notRequired(),
-        }),
-    
-      passbookPhoto: Yup.mixed()
-        .required("Passbook photo is required")
-        .test("fileType", "Unsupported format", (value) =>
-          value ? ["image/jpeg", "image/png"].includes(value.type) : false
-        )
-        .test("fileSize", "File must be less than 5MB", (value) =>
-          value ? value.size <= 5 * 1024 * 1024 : false
-        ),
-    }),
-
-  // Step 8: System Access Information
-  Yup.object().shape({
-    role: Yup.string().required("Role/Designation is required"),
-    access: Yup.string().required("Access selection is required"),
-  }),
-
 ];
 
+// usage in component
 
+const steps = ["Personal Information", "Address","Professional Information","Current Crop Information",];
 
 const FarmerForm = ({ currentStep, setCurrentStep }) => {
-  const navigate = useNavigate();
-  const [isEditing, setIsEditing] = useState(false);
+  const totalSteps = steps.length;
+  const [photoPreview, setPhotoPreview] = useState(" ");
   
+  // Handle photo change
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setPhotoPreview(URL.createObjectURL(file));
+    } else {
+      setPhotoPreview(null);
+    }
+  };
+
   const methods = useForm({
-    resolver: yupResolver(validationSchemas[currentStep]),
-    mode: "onBlur",
+    resolver: yupResolver(stepSchemas[currentStep]),
+    mode: "onChange",
   });
+ const { register, control, handleSubmit, formState: { errors }, watch, trigger } = methods;
 
-  const {
-    register,
-    handleSubmit,
-    trigger,
+ const onSubmit = async (data) => {
+  try {
+    setLoading(true); // Optional: show loader/spinner
 
-    formState: { errors },
-    setValue,
-    watch,
-    getValues,
-    totalSteps,
-    props,
-  } = methods;
+    // Simulate API delay (e.g., 2 seconds) with setTimeout
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
-  const onSubmit = async (data) => {
-    const valid = await trigger();
-    if (!valid) return;
+    // After the "mock" delay, you can consider it successful
+    console.log("Mock API response:", data);
 
-    if (currentStep < steps.length - 1) {
-      setCurrentStep((prev) => prev + 1);
-    } else {
-      console.log("Submitting form data:", data);
-      alert("Form submitted successfully!");
-     
-    }
-  };
-
-  const handleNext = async () => {
-    const isStepValid = await trigger();
-    if (!isStepValid) return;
-  
-    if (currentStep < steps.length - 1) {
-      handleNext((prev) => prev + 1);
-    } else {
-      // Final step reached, submit data or redirect
-      // Submit form here if needed
-      handleSubmit(onSubmit)(); // Optional: if you want to submit before navigating
-      navigate('/view-farmer', { state: getValues() });
-    }
-  };
+    setShowSuccessPopup(true); // Show popup after "successful" submission
+  } catch (error) {
+    console.error("Error submitting form:", error);
+    alert("Submission failed. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const countryOptions = [
+    { value: "India", label: "India" },
+    { value: "United States", label: "United States" },
+    { value: "United Kingdom", label: "United Kingdom" },
+    { value: "Canada", label: "Canada" },
+    { value: "Australia", label: "Australia" },
+    // Add more countries as needed
+  ];
 
   
-
-    const [file, setFile] = useState(null);
-
-    const [photo, setPhoto] = useState(null);
-
-    const handlePhotoChange = (e) => {
-      const file = e.target.files[0];
-      if (file && file.type.startsWith("image/")) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setPhoto(reader.result); 
-        };
-        reader.readAsDataURL(file);
-      }
-    };
-
-    const steps = [
-      "Personal Information",
-      "Address",
-      "Professional Information",
-      "Current Crop Information",
-      "Proposed Crop Information",
-      "Irrigation Details",
-      "Other Information",
-      "Documents",
-      "Portal Access",
-      "View Farmer",
-    ];
-            
+      
 
   return (
     <div className="form-wrapper">
-        <div className="form-full"> 
+      <div className="form-full">
         <h2>{steps[currentStep]}</h2>
-        
+  
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
-            {currentStep === 0 && ( 
-               
-              <div className="form-grid"> 
-              <div className="field-left">
-                <div className="form-group photo-group">
-                  <label>Photo <span className="required">*</span></label>
-                   <div className="photo-box" onClick={() => document.getElementById("photoInput").click()}>
-                     {photo ? (
-                     <img src={photo} alt="Uploaded" className="preview-img" />
-                      ) : (
-                      "Click to upload"
-                      )}
+            {currentStep === 0 && (
+              <div className="form-grid">
+                <div className="field-left">
+                  <div className="form-group photo-group">
+                    <label>Photo <span className="optional">(Optional)</span></label>
+                    <div className="photo-box">
+                      {photoPreview ? <img src={photoPreview} alt="Preview" className="photo-preview" /> : <span className="photo-placeholder">No photo selected</span>}
                     </div>
-                   <input type="file" accept="image/*" id="photoInput" onChange={handlePhotoChange} style={{ display: "none" }} />
+                    <input type="file" accept="image/*" onChange={handlePhotoChange} className="photo-input" />
+                  </div>
+  
+                  <label>First Name <span className="required">*</span>
+                    <input type="text" {...register("firstName")} />
+                  </label>
+                  <p className="error">{errors.firstName?.message}</p>
+  
+                  <label>Middle Name <span className="optional">*</span>
+                    <input type="text" {...register("middleName")} />
+                  </label>
+                  <p className="error">{errors.middleName?.message}</p>
+  
+                  <label>Last Name <span className="required">*</span>
+                    <input type="text" {...register("lastName")} />
+                  </label>
+                  <p className="error">{errors.lastName?.message}</p>
+  
+                  <label>Gender <span className="required">*</span>
+                    <select {...register("gender")}>
+                      <option value="">Select Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Transgender">Transgender</option>
+                    </select>
+                  </label>
+                  <p>{errors.gender?.message}</p>
                 </div>
-                <label>First Name <span className="required">*</span>
-                  <input {...register("firstName")} />
-                </label>
-                <p>{errors.firstName?.message}</p>
-
-                <label>Middle Name <span className="required">*</span>
-                  <input {...register("middleName")} />
-                </label>
-                <p>{errors.middleName?.message}</p>
-
-                <label>Last Name <span className="required">*</span>
-                  <input {...register("lastName")} />
-                </label>
-                <p>{errors.lastName?.message}</p>
-
-                <label>Gender <span className="required">*</span>
-                  <select {...register("gender")}>
-                    <option value="">Select Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Transgender">Transgender</option>
-                  </select>
-                </label>
-                <p>{errors.gender?.message}</p>
-                 </div>
-
+  
                 <div className="field-right">
-                <label>Salutation <span className="required">*</span>
-                  <select {...register("salutation")}>
-                    <option value="">Select Salutation</option>
-                    <option value="D/O">D/O</option>
-                    <option value="S/O">S/O</option>
-                    <option value="W/O">W/O</option>
-                  </select>
-                </label>
-                <p>{errors.salutation?.message}</p>
-
-                <label>Nationality <span className="required">*</span>
-                  <input {...register("nationality")} />
-                </label>
-                <p>{errors.nationality?.message}</p>
-
-                <label>Date of Birth (DD/MM/YYYY) <span className="required">*</span>
-                  <input {...register("dob")} />
-                </label>
-                <p>{errors.dob?.message}</p>
-
-                <label>Father Name <span className="required">*</span>
-                  <input {...register("fatherName")} />
-                </label>
-                <p>{errors.fatherName?.message}</p>
-
-                <label>Contact Number <span className="required">*</span>
-                  <input {...register("ContactNumber")} />
-                </label>
-                <p>{errors.alternativeNumber?.message}</p>
-
-                <label>Alternative Number <span className="required">*</span>
-                  <input {...register("alternativeNumber")} />
-                </label>
-                <p>{errors.alternativeNumber?.message}</p>
-
-                <label>Alternative Type <span className="required">*</span>
-                  <input {...register("alternativeType")} />
-                </label>
-                <p>{errors.alternativeType?.message}</p>
+                  <label>Salutation <span className="required">*</span>
+                    <select {...register("salutation")}>
+                      <option value="">Select Salutation</option>
+                      <option value="D/O">D/O</option>
+                      <option value="S/O">S/O</option>
+                      <option value="W/O">W/O</option>
+                    </select>
+                  </label>
+                  <p>{errors.salutation?.message}</p>
+  
+                  <label>Nationality <span className="required">*</span>
+                    <Controller
+                      name="nationality"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          options={countryOptions}
+                          isSearchable
+                          placeholder="Select your nationality"
+                          classNamePrefix="react-select"
+                        />
+                      )}
+                    />
+                  </label>
+                  <p className="error">{errors.nationality?.message}</p>
+  
+                  <label>Date of Birth (DD/MM/YYYY) <span className="required">*</span>
+                    <input type="text" {...register("dob")} placeholder="DD/MM/YYYY" />
+                  </label>
+                  <p className="error">{errors.dob?.message}</p>
+  
+                  <label>Father Name <span className="required">*</span>
+                    <input type="text" {...register("fatherName")} />
+                  </label>
+                  <p>{errors.fatherName?.message}</p>
+  
+                  <label>Alternative Number <span className="optional">(Optional)</span>
+                    <input type="number" {...register("alternativeNumber")} placeholder="Enter alternative 10-digit number" />
+                  </label>
+                  <p>{errors.alternativeNumber?.message}</p>
+  
+                  <label>Contact Number <span className="optional">(Optional)</span>
+                    <input type="number" {...register("contactNumber")} placeholder="Enter 10-digit contact number" />
+                  </label>
+                  <p className="error">{errors.contactNumber?.message}</p>
+  
+                  <label>Alternative Type <span className="required">*</span>
+                    <select {...register("alternativeType")}>
+                      <option value="">Select Relation</option>
+                      <option value="Father">Father</option>
+                      <option value="Mother">Mother</option>
+                      <option value="Brother">Brother</option>
+                      <option value="Sister">Sister</option>
+                      <option value="Son">Son</option>
+                      <option value="Daughter">Daughter</option>
+                      <option value="Spouse">Spouse</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </label>
+                  <p className="error">{errors.alternativeType?.message}</p>
                 </div>
-                </div>
-               
-              
+              </div>
             )}
-
+  
             {currentStep === 1 && (
-                
               <div className="address-field">
                 <label>Country <span className="required">*</span>
                   <input {...register("country")} />
                 </label>
                 <p>{errors.country?.message}</p>
-
+  
                 <label>State <span className="required">*</span>
                   <input {...register("state")} />
                 </label>
                 <p>{errors.state?.message}</p>
-
+  
                 <label>District <span className="required">*</span>
                   <input {...register("district")} />
                 </label>
                 <p>{errors.district?.message}</p>
-
+  
                 <label>Block (mandal) <span className="required">*</span>
                   <input {...register("block")} />
                 </label>
                 <p>{errors.block?.message}</p>
-
+  
                 <label>Village <span className="required">*</span>
                   <input {...register("village")} />
                 </label>
                 <p>{errors.village?.message}</p>
-
+  
                 <label>Pincode <span className="required">*</span>
                   <input {...register("pincode")} />
                 </label>
                 <p>{errors.pincode?.message}</p>
               </div>
-              
             )}
 
-            {currentStep === 2 && (
+{currentStep === 2 && (
                 <>
               <div className="profes-field">
                 <label>Education <span className="required">*</span></label>
@@ -407,17 +303,13 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
                 
                    <div className="currentform-grid">
                    <div className="cropform-columnleft">
-                   <div className="form-group">
-                     <label>Photo <span className="required">*</span></label>
-                     <div className="photo-box">
-                         {photo  ? (
-                         <img src={photo} alt="Uploaded Farmer" className="uploaded-photo" />
-                      ) : (
-                        <p>Upload Farmer Photo</p>
-                      )}
-                     </div>
-                     <input type="file" accept="image/*" id="photoInput" onChange={handlePhotoChange} style={{ display: "none" }} />
+                   <div className="form-group photo-group">
+                    <label>Photo <span className="optional">(Optional)</span></label>
+                    <div className="photo-box">
+                      {photoPreview ? <img src={photoPreview} alt="Preview" className="photo-preview" /> : <span className="photo-placeholder">No photo selected</span>}
                     </div>
+                    <input type="file" accept="image/*" onChange={handlePhotoChange} className="photo-input" />
+                  </div>
                  
                     <label>Survey Numbers <span className="required">*</span>
                       <input {...register("surveyNumber")} />
@@ -471,215 +363,59 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
               </>
             )}
 
-            {currentStep === 4 && (
-              <div className="proposed-field">
-                 <div className="proposedform-grid">
-                 <div className="proposedform-columnleft">
-                <label>Survey Numbers <span className="required">*</span>
-                  <input {...register("surveyNumber")} />
-                </label>
-                <p>{errors.surveyNumber?.message}</p>
-
-                <label>Geo-tag <span className="required">*</span>
-                  <input {...register("geoTag")} placeholder="Latitude, Longitude" />
-                </label>
-                <p>{errors.geoTag?.message}</p>
-
-                <label>Select Crop <span className="required">*</span>
-                <select {...register("cropType")}>
-                  <option value="">Select</option>
-                  <option value="Grains">Grains</option>
-                  <option value="Vegetables">Vegetables</option>
-                  <option value="Cotton">Cotton</option>
-                </select>
-                </label>
-                <p>{errors.cropType?.message}</p>
-
-                <label>Soil Test <span className="required">*</span>
-                <select {...register("soilTest")}>
-                  <option value="">Select</option>
-                  <option value="Yes">Yes</option>
-                  <option value="No">No</option>
-                </select>
-                </label>
-                <p>{errors.soilTest?.message}</p>
-                </div>
-
-                <div className="proposedform-columnright">
-                <label>Total Land Holding (In Acres) <span className="required">*</span>
-                <input type="text" {...register("totalLandHolding")} />
-                </label>
-                <p>{errors.totalLandHolding?.message}</p>
-
-                <label>Net Income (Per Crop/Yr) <span className="required">*</span>
-                <input type="text" {...register("netIncome")} />
-                </label>
-                <p className="error">{errors.netIncome?.message}</p>
-
-                <label>Soil Test Certificate <span className="required">*</span>
-                 <input type="file" onChange={(e) => setFile(e.target.files[0])} />
-                </label>
-                <p className="error">{errors.soilTestCertificate?.message}</p>
-                 </div>
-                </div>
-               </div>
-            )}
-
-            {currentStep === 5 && (
-              <div className="irrigation-field">
-                <div className="Current Crop Addition">
-                 <label>Water Source <span className="irrigationrequired">*</span>
-                 <select {...register("waterSource")}>
-                  <option value="">Select</option>
-                  <option value="Borewell">Borewell</option>
-                  <option value="Open Well">Open Well</option>
-                  <option value="Canal">Canal</option>
-                  <option value="Tank">Tank</option>
-                  <option value="River">River</option>
-                  <option value="Drip">Drip</option>
-                </select>
-                </label>
-                </div>
-              </div>
-          
-            )}
-
-    {currentStep === 6 && (
-     <div className="other-field">
-      <h3>Bank Details</h3>
-
-      <label>Bank Name <span className="required">*</span></label>
-      <input type="text" {...register("bankName")} />
-      <p className="error">{errors.bankName?.message}</p>
-
-      <label>Account Number <span className="required">*</span></label>
-      <input type="text" {...register("accountNumber")} />
-      <p className="error">{errors.accountNumber?.message}</p>
-
-      <label>Branch Name <span className="required">*</span></label>
-      <input type="text" {...register("branchName")} />
-      <p className="error">{errors.branchName?.message}</p>
-
-      <label>IFSC Code <span className="required">*</span></label>
-      <input type="text" {...register("ifscCode")} />
-      <p className="error">{errors.ifscCode?.message}</p>
-
-      <label>Passbook <span className="required">*</span></label>
-       <input
-        type="file"
-        accept="image/*,application/pdf"
-        onChange={(e) => {
-          const file = e.target.files[0];
-          setValue("passbookFile", file); 
-          trigger("passbookFile"); 
-       }}
-        />
-         <p className="error">{errors.passbookFile?.message}</p>
-        </div>
-      )}
-
-
-           {currentStep === 7 && (
-          <div className="other-field">
-       <label className="label">
-        Add Document <span className="required">*</span>
-       </label>
-           <select className="docinput" {...register("documentType")}>
-              <option value="">Select</option>
-               <option value="ID/ Voter Card">ID/ Voter Card</option>
-               <option value="Aadhar Number">Aadhar Number</option>
-               <option value="Pan Number">Pan Number</option>
-               <option value="Ppb Number">Ppb Number</option>
-           </select>
-           <p>{errors.documentType?.message}</p>
-
-   
-             <input type="text" placeholder="ID/ Voter Card" className="input" {...register("voterId")} />
-             <p>{errors.voterId?.message}</p>
-
-               <input type="text" placeholder="Aadhar Number" className="input" {...register("aadharNumber")} />
-                <p>{errors.aadharNumber?.message}</p>
-
-                <input type="text" placeholder="Pan Number" className="input" {...register("panNumber")} />
-                 <p>{errors.panNumber?.message}</p>
-
-              <input type="text" placeholder="Ppb Number" className="input" {...register("ppbNumber")} />
-              <p>{errors.ppbNumber?.message}</p>
-
-                 <label className="doclabel">Passbook <span className="required">*</span></label>
-              <div
-                  className="photo-box"
-                  onClick={() => document.getElementById("photoInput").click()}
-                   >
-                  {photo ? (
-                   <img src={photo} alt="Uploaded" className="preview-img" />
-                              ) : (
-                  "Click to upload"
-          )}
-             </div>
-            <input
-             type="file"
-             accept="image/*"
-              id="photoInput"
-               style={{ display: "none" }}
-                onChange={(e) => {
-                 const file = e.target.files[0];
-                    setValue("passbookPhoto", file);
-                     trigger("passbookPhoto");
-            }}
-                />
-                <p>{errors.passbookPhoto?.message}</p>
-             </div>
-           )}
-
-
-           {currentStep === 8 && (
-              <div className="portal-form-group">
-                <label> Role/Designation <span className="required">*</span> </label>
-                <select {...register("role")}>
-                  <option value="">Select</option>
-                  <option value="Manager">Manager</option>
-                  <option value="Employee">Employee</option>
-                </select>
-                <p className="error">{errors.role?.message}</p>
-
-                <label> Access <span className="required">*</span> </label>
-                <select {...register("access")}>
-                  <option value="">Select</option>
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                </select>
-                <p className="error">{errors.access?.message}</p>
-              </div>
-            )}
-      
-
-            <div className="btn-group">
-            <button
-             type="button"
-              disabled={currentStep === 0}
-              onClick={() => setCurrentStep(currentStep - 1)}
-              >
-             Previous
-              </button>
-
-              <button
-                type="button"
-                disabled={currentStep === totalSteps - 1}
-                onClick={() => setCurrentStep(currentStep + 1)}
-              >
-               Next
-              </button>
-               </div>
-             </form>
-          </FormProvider>
-         </div>
-        <div className="form-right">
+  
+<div className="btn-group">
+  {currentStep === 0 ? (
+    <button
+      type="button"
+      onClick={async () => {
+        const isValid = await trigger();
+        if (isValid) setCurrentStep(currentStep + 1);
+      }}
+    >
+      Next
+    </button>
+  ) : currentStep === totalSteps - 1 ? (
+    <>
+      <button type="button" onClick={() => setCurrentStep(currentStep - 1)}>
+        Previous
+      </button>
+      <button type="submit">Submit</button>
+    </>
+  ) : (
+    <>
+      <button type="button" onClick={() => setCurrentStep(currentStep - 1)}>
+        Previous
+      </button>
+      <button
+        type="button"
+        onClick={async () => {
+          const isValid = await trigger();
+          if (isValid) setCurrentStep(currentStep + 1);
+        }}
+      >
+        Next
+      </button>
+    </>
+  )}
+</div>
+{showSuccessPopup && (
+  <div className="popup">
+    <div className="popup-content">
+      <h3>Success!</h3>
+      <p>Farmer form submitted successfully.</p>
+      <button onClick={() => setShowSuccessPopup(false)}>OK</button>
+    </div>
+  </div>
+)}
+          </form>
+        </FormProvider>
+      </div>
+      <div className="form-right">
         <img src={farmImage} alt="Farm Field" className="form-image" />
       </div>
     </div>
   );
 };
-
-export default FarmerForm;
+  export default FarmerForm;  
 

@@ -21,8 +21,6 @@ function Layout({ children, currentStep = 0, onStepChange }) {
     "💧 Irrigation Details",
     "🔍 Other Information",
     "📄 Documents",
-    "🛂 Portal Access",
-    "🚜 View Farmer",
   ];
 
   return (

@@ -32,16 +32,21 @@ const RegistrationForm = () => {
   });
 
   const [loading, setLoading] = useState(false);
-
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const onSubmit = async (data) => {
-    setLoading(true);
     try {
-      const response = await axios.post("https://your-api-endpoint.com/register", data);
-      alert("Registration Successful!");
-      console.log(response.data);
+      setLoading(true); // Optional: show loader/spinner
+  
+      // Simulate API delay (e.g., 2 seconds) with setTimeout
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+  
+      // After the "mock" delay, you can consider it successful
+      console.log("Mock API response:", data);
+  
+      setShowSuccessPopup(true); // Show popup after "successful" submission
     } catch (error) {
-      alert("Registration Failed!");
-      console.error(error);
+      console.error("Error submitting form:", error);
+      alert("Submission failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -152,8 +157,18 @@ const RegistrationForm = () => {
           </div>
         </div>
         <button type="submit" disabled={loading} className="submit-btn">
-                 {loading ? "Registering..." : "Register"}
+        <button type="submit">Submit</button>
               </button>
+
+              {showSuccessPopup && (
+  <div className="popup">
+    <div className="popup-content">
+      <h3>Success!</h3>
+      <p>Registration successfully completed.</p>
+      <button onClick={() => setShowSuccessPopup(false)}>OK</button>
+    </div>
+  </div>
+)}
       </div>
     </form>
   );
