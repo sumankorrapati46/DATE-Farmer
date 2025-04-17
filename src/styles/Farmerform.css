@@ -31,10 +31,29 @@
 
 
 
-.photo-box{
-  width: 120px;
-  height: 120px;
-  border: 1px solid #333;
+.photo-box {
+  width: 150px; /* Adjust as needed */
+  height: 150px;
+  border: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.photo-preview {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.photo-placeholder {
+  color: #999;
+  font-size: 14px;
+  text-align: center;
 }
 
 .form-image {
@@ -117,6 +136,7 @@ button {
   border-radius: 8px;
   border: none;
   color: whitesmoke;
+  background-color: #006838;
   cursor: pointer;
   transition: background-color 0.25s ease;
 }
@@ -212,12 +232,12 @@ button[type="button"]:hover {
   top: 0; /* Position it at the top of the page */
   left: 50%;
   transform: translateX(-50%); /* Center horizontally */
-  background-color: rgba(0, 128, 0, 0.8); /* Green background with transparency */
-  color: white;
+  background-color: white; /* Green background with transparency */
+  color: black;
   padding: 20px;
   border-radius: 8px;
   z-index: 9999; /* Ensure the popup is above other content */
-  width: 100%; /* Optional: full width or you can set a specific width */
+  width: 30%; /* Optional: full width or you can set a specific width */
   text-align: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Optional: add shadow for visual effect */
 }
@@ -228,13 +248,15 @@ button[type="button"]:hover {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  font-size: 18px;
+  color: #000;
 }
 
 /* Close button styling */
 .popup-content button {
   margin-top: 10px;
   padding: 8px 16px;
-  background-color: #f44336; /* Red background for close button */
+  background-color: blue; /* Red background for close button */
   color: white;
   border: none;
   border-radius: 5px;
@@ -242,5 +264,5 @@ button[type="button"]:hover {
 }
 
 .popup-content button:hover {
-  background-color: #d32f2f; /* Darker red on hover */
+  background-color: blue; /* Darker red on hover */
 }

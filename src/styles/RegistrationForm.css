@@ -20,8 +20,8 @@
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-    width: 600px;
-    height: 650px;
+    width: 650px;
+    height: 850px;
     margin-right: 13%;
    
   }
@@ -79,17 +79,17 @@
   
   .submit-btn {
     display: block;
-    background: #006838;
-    width: 93%;
+    background: #388d19;
+    width: 100%;
     border-radius: 5px;
     font-size: 18px;
-    margin-top: 50px;
+    margin-top: 80px;
     align-items: flex-start;
    
   }
   
   .submit-btn:disabled {
-    background: blue;
+    background: #388d19;
     cursor: not-allowed;
   }
   

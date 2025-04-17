@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import axios from "axios";
+import { Link } from "react-router-dom";
 import "../styles/RegistrationForm.css";
 import background from "../assets/background-image.png";
 import logo from "../assets/rightlogo.png";
@@ -164,11 +165,14 @@ const RegistrationForm = () => {
   <div className="popup">
     <div className="popup-content">
       <h3>Success!</h3>
-      <p>Registration successfully completed.</p>
+      Registration successfully completed.
       <button onClick={() => setShowSuccessPopup(false)}>OK</button>
     </div>
   </div>
 )}
+<div className="login-link">
+      <h3>   Already a member? <Link to="/login">Login</Link></h3> 
+        </div>
       </div>
     </form>
   );

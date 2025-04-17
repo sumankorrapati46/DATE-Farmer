@@ -49,7 +49,7 @@ const stepSchemas = [
     country: yup.string().required("Country is required"),
     state: yup.string().required("State is required"),
     district: yup.string().required("District is required"),
-    block: yup.string().required("Block (mandal) is required"),
+    mandal: yup.string().required("Block (mandal) is required"),
     village: yup.string().required("Village is required"),
     pincode: yup.string()
       .required("Pincode is required")
@@ -69,14 +69,82 @@ const stepSchemas = [
     geoTag: yup.string().required("Geo-tag is required"),
     selectCrop: yup.string().required("Crop selection is required"),
     netIncome: yup.string().required("Net Income is required"),
-    soilTest: yup.string().required("Soil Test is required"),
-    soilTestCertificate: yup.mixed().required("Soil Test Certificate is required"),
-  }),
+    soilTest: yup
+        .string()
+        .required("Soil Test is required")
+        .oneOf(["Yes", "No"], "Please select Yes or No"),
+        
+      soilTestCertificate: yup
+        .mixed()
+        .when("soilTest", {
+          is: "Yes",
+          then: (schema) =>
+            schema.required("Soil Test Certificate is required").test(
+              "fileSize",
+              
+              (value) => !value || value.size <= 10 * 1024 * 1024 // 5MB
+            ),
+          otherwise: (schema) => schema.notRequired(),
+        }),
+      }),
+        yup.object().shape({
+          surveyNumber: yup.string().required("Survey Number is required"),
+          geoTag: yup.string().required("Geo-tag is required"),
+          cropType: yup.string().required("Crop Type is required"),
+          soilTest: yup.string().required("Soil Test selection is required"),
+          totalLandHolding: yup.string().required("Total Land Holding is required"),
+          netIncome: yup.string().required("Net Income is required"),
+          soilTestCertificate: yup.mixed().required("Soil Test Certificate is required"),
+        }),
+        yup.object().shape({
+          waterSource: yup.string().required("Water Source is required"),
+          borewellDischarge: yup.string().required("Borewell-wise Discharge is required"),
+          summerDischarge: yup.string().required("Discharge during summer months is required"),
+          borewellLocation: yup.string().required("Borewell Location is required"),
+        }),
+
+        yup.object().shape({
+          bankName: yup.string().required("Bank Name is required"),
+        
+          accountNumber: yup.string()
+            .matches(/^\d{9,18}$/, "Account Number must be 9-18 digits")
+            .required("Account Number is required"),
+        
+          branchName: yup.string().required("Branch Name is required"),
+        
+          ifscCode: yup.string()
+            .matches(/^[A-Z]{4}0[A-Z0-9]{6}$/, "Enter a valid IFSC Code")
+            .required("IFSC Code is required"),
+        
+          passbookFile: yup.mixed()
+            .required("Passbook file is required")
+            .test("fileSize", "File is too large", (value) => {
+              return value && value.size <= 5 * 1024 * 1024; 
+            })
+            .test("fileType", "Unsupported File Format", (value) => {
+              return value && ["image/jpeg", "image/png", "application/pdf"].includes(value.type);
+            }),
+          }),
+          yup.object().shape({
+            voterId: yup.string().nullable(),
+            aadharNumber: yup.string().nullable(),
+            panNumber: yup.string().nullable(),
+            ppbNumber: yup.string().nullable(),
+            passbookPhoto: yup
+              .mixed()
+              .nullable()
+              .test("fileSize", "File too large", (value) => {
+                if (!value) return true; // allow empty
+                return value.size <= 10 * 1024 * 1024; // allow up to 10MB
+              }),
+          }),
+          
 ];
 
 // usage in component
 
-const steps = ["Personal Information", "Address","Professional Information","Current Crop Information",];
+const steps = ["Personal Information", "Address","Professional Information","Current Crop Information", "Proposed Crop Information","Irrigation Details","Other Information",
+  "Documents",];
 
 const FarmerForm = ({ currentStep, setCurrentStep }) => {
   const totalSteps = steps.length;
@@ -91,13 +159,14 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
       setPhotoPreview(null);
     }
   };
-
+  
   const methods = useForm({
     resolver: yupResolver(stepSchemas[currentStep]),
     mode: "onChange",
   });
- const { register, control, handleSubmit, formState: { errors }, watch, trigger } = methods;
-
+ const { register, control, handleSubmit, formState: { errors }, watch, trigger, setValue } = methods;
+ const soilTestValue = watch("soilTest");
+ 
  const onSubmit = async (data) => {
   try {
     setLoading(true); // Optional: show loader/spinner
@@ -127,8 +196,84 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
     // Add more countries as needed
   ];
 
+  const districtOptions = [
+    { value: "Adilabad", label: "Adilabad" },
+    { value: "Bhadradri Kothagudem", label: "Bhadradri Kothagudem" },
+    { value: "Hanumakonda", label: "Hanumakonda" },
+    { value: "Hyderabad", label: "Hyderabad" },
+    { value: "Jagtial", label: "Jagtial" },
+    { value: "Jangaon", label: "Jangaon" },
+    { value: "Jayashankar Bhupalpally", label: "Jayashankar Bhupalpally" },
+    { value: "Jogulamba Gadwal", label: "Jogulamba Gadwal" },
+    { value: "Kamareddy", label: "Kamareddy" },
+    { value: "Karimnagar", label: "Karimnagar" },
+    { value: "Khammam", label: "Khammam" },
+    { value: "Komaram Bheem", label: "Komaram Bheem (Asifabad)" },
+    { value: "Mahabubabad", label: "Mahabubabad" },
+    { value: "Mahabubnagar", label: "Mahabubnagar" },
+    { value: "Mancherial", label: "Mancherial" },
+    { value: "Medak", label: "Medak" },
+    { value: "Medchal–Malkajgiri", label: "Medchal–Malkajgiri" },
+    { value: "Mulugu", label: "Mulugu" },
+    { value: "Nagarkurnool", label: "Nagarkurnool" },
+    { value: "Nalgonda", label: "Nalgonda" },
+    { value: "Narayanpet", label: "Narayanpet" },
+    { value: "Nirmal", label: "Nirmal" },
+    { value: "Nizamabad", label: "Nizamabad" },
+    { value: "Peddapalli", label: "Peddapalli" },
+    { value: "Rajanna Sircilla", label: "Rajanna Sircilla" },
+    { value: "Rangareddy", label: "Rangareddy" },
+    { value: "Sangareddy", label: "Sangareddy" },
+    { value: "Siddipet", label: "Siddipet" },
+    { value: "Suryapet", label: "Suryapet" },
+    { value: "Vikarabad", label: "Vikarabad" },
+    { value: "Wanaparthy", label: "Wanaparthy" },
+    { value: "Warangal", label: "Warangal" },
+    { value: "Yadadri Bhuvanagiri", label: "Yadadri Bhuvanagiri" },
+  ];
+
+  const mandalOptions = [
+    { value: "Bonakal", label: "Bonakal" },
+    { value: "Chintakani", label: "Chintakani" },
+    { value: "Enkuru", label: "Enkuru" },
+    { value: "Kalluru", label: "Kalluru" },
+    { value: "Kamepalli", label: "Kamepalli" },
+    { value: "Khammam (Rural)", label: "Khammam (Rural)" },
+    { value: "Khammam (Urban)", label: "Khammam (Urban)" },
+    { value: "Konijerla", label: "Konijerla" },
+    { value: "Kusumanchi", label: "Kusumanchi" },
+    { value: "Madhira", label: "Madhira" },
+    { value: "Mudigonda", label: "Mudigonda" },
+    { value: "Nelakondapalli", label: "Nelakondapalli" },
+    { value: "Penuballi", label: "Penuballi" },
+    { value: "Raghunadhapalem", label: "Raghunadhapalem" },
+    { value: "Sathupalli", label: "Sathupalli" },
+    { value: "Singareni", label: "Singareni" },
+    { value: "Thallada", label: "Thallada" },
+    { value: "Tirumalayapalem", label: "Tirumalayapalem" },
+    { value: "Vemsoor", label: "Vemsoor" },
+    { value: "Wyra", label: "Wyra" },
+    { value: "Yerrupalem", label: "Yerrupalem" },
+  ];
   
-      
+  const villageOptions = [
+    { value: "Allipuram", label: "Allipuram" },
+    { value: "Bachodu", label: "Bachodu" },
+    { value: "Danavaigudem", label: "Danavaigudem" },
+    { value: "Gandhi Nagar", label: "Gandhi Nagar" },
+    { value: "Kalavoddu", label: "Kalavoddu" },
+    { value: "Khammam (Rural)", label: "Khammam (Rural)" },
+    { value: "Lingala", label: "Lingala" },
+    { value: "Mallemadugu", label: "Mallemadugu" },
+    { value: "Mekala Gudem", label: "Mekala Gudem" },
+    { value: "Mustikunta", label: "Mustikunta" },
+    { value: "Pandurangapuram", label: "Pandurangapuram" },
+    { value: "Peddireddygudem", label: "Peddireddygudem" },
+    { value: "Rajeswarapuram", label: "Rajeswarapuram" },
+    { value: "Singareni Colony", label: "Singareni Colony" },
+    { value: "Turakagudem", label: "Turakagudem" },
+  ]; 
+ 
 
   return (
     <div className="form-wrapper">
@@ -242,30 +387,97 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
   
             {currentStep === 1 && (
               <div className="address-field">
-                <label>Country <span className="required">*</span>
-                  <input {...register("country")} />
-                </label>
-                <p>{errors.country?.message}</p>
+                <label>Country <span className="required">*</span></label>
+<Controller
+  name="country"
+  control={control}
+  render={({ field }) => (
+    <Select
+      {...field}
+      options={countryOptions}
+      isSearchable
+      placeholder="Select your Country"
+      classNamePrefix="react-select"
+      value={countryOptions.find(option => option.value === field.value)}
+      onChange={(selectedOption) => field.onChange(selectedOption.value)}
+    />
+  )}
+/>
+<p className="error">{errors.country?.message}</p>
   
-                <label>State <span className="required">*</span>
-                  <input {...register("state")} />
-                </label>
-                <p>{errors.state?.message}</p>
+                <label>
+  State <span className="required">*</span>
+  <select {...register("state")}>
+    <option value="">Select your state</option>
+    <option value="Andhra Pradesh">Andhra Pradesh</option>
+    <option value="Telangana">Telangana</option>
+    <option value="Karnataka">Karnataka</option>
+    <option value="Maharashtra">Maharashtra</option>
+    <option value="Tamil Nadu">Tamil Nadu</option>
+    {/* Add more states as needed */}
+  </select>
+</label>
   
-                <label>District <span className="required">*</span>
-                  <input {...register("district")} />
-                </label>
-                <p>{errors.district?.message}</p>
+<label>
+  District <span className="required">*</span>
+</label>
+<Controller
+  name="district"
+  control={control}
+  render={({ field }) => (
+    <Select
+      {...field}
+      options={districtOptions}
+      isSearchable
+      placeholder="Select your district"
+      classNamePrefix="react-select"
+      value={districtOptions.find(option => option.value === field.value)}
+      onChange={(selectedOption) => field.onChange(selectedOption.value)}
+    />
+  )}
+/>
+<p className="error">{errors.district?.message}</p>
+
   
-                <label>Block (mandal) <span className="required">*</span>
-                  <input {...register("block")} />
-                </label>
-                <p>{errors.block?.message}</p>
+                <label>
+  Mandal <span className="required">*</span>
+</label>
+<Controller
+  name="mandal"
+  control={control}
+  render={({ field }) => (
+    <Select
+      {...field}
+      options={mandalOptions}
+      isSearchable
+      placeholder="Select your mandal"
+      classNamePrefix="react-select"
+      value={mandalOptions.find(option => option.value === field.value)}
+      onChange={(selectedOption) => field.onChange(selectedOption.value)}
+    />
+  )}
+/>
+<p className="error">{errors.mandal?.message}</p>
   
-                <label>Village <span className="required">*</span>
-                  <input {...register("village")} />
-                </label>
-                <p>{errors.village?.message}</p>
+<label>
+  Village <span className="required">*</span>
+</label>
+<Controller
+  name="village"
+  control={control}
+  render={({ field }) => (
+    <Select
+      {...field}
+      options={villageOptions}
+      isSearchable
+      placeholder="Select your village"
+      classNamePrefix="react-select"
+      value={villageOptions.find(option => option.value === field.value)}
+      onChange={(selectedOption) => field.onChange(selectedOption.value)}
+    />
+  )}
+/>
+<p className="error">{errors.village?.message}</p>
   
                 <label>Pincode <span className="required">*</span>
                   <input {...register("pincode")} />
@@ -352,18 +564,207 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
                     </label>
                     <p>{errors.soilTest?.message}</p>
 
-                    <label>Soil Test Certificate <span className="required">*</span>
-                     <input {...register("soilTestCertificate")} />
-                    </label>
-                    <p>{errors.soilTestCertificate?.message}</p>
+                    <label>Soil Test Certificate
+        <input
+          type="file"
+          {...register("soilTestCertificate")}
+          disabled={soilTestValue !== "Yes"}
+        />
+        {errors.soilTestCertificate && (
+          <p className="error">{errors.soilTestCertificate.message}</p>
+        )}
+      </label>
                     </div>
                     </div>
                     
               </div>
               </>
             )}
+           {currentStep === 4 && (
+              <div className="proposed-field">
+                 <div className="proposedform-grid">
+                 <div className="proposedform-columnleft">
+                <label>Survey Numbers <span className="required">*</span>
+                  <input {...register("surveyNumber")} />
+                </label>
+                <p>{errors.surveyNumber?.message}</p>
 
-  
+                <label>Geo-tag <span className="required">*</span>
+                  <input {...register("geoTag")} placeholder="Latitude, Longitude" />
+                </label>
+                <p>{errors.geoTag?.message}</p>
+
+                <label>Select Crop <span className="required">*</span>
+                <select {...register("cropType")}>
+                  <option value="">Select</option>
+                  <option value="Grains">Grains</option>
+                  <option value="Vegetables">Vegetables</option>
+                  <option value="Cotton">Cotton</option>
+                </select>
+                </label>
+                <p>{errors.cropType?.message}</p>
+
+                <label>Soil Test <span className="required">*</span>
+                <select {...register("soilTest")}>
+                  <option value="">Select</option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+                </label>
+                <p>{errors.soilTest?.message}</p>
+                </div>
+
+                <div className="proposedform-columnright">
+                <label>Total Land Holding (In Acres) <span className="required">*</span>
+                <input type="text" {...register("totalLandHolding")} />
+                </label>
+                <p>{errors.totalLandHolding?.message}</p>
+
+                <label>Net Income (Per Crop/Yr) <span className="required">*</span>
+                <input type="text" {...register("netIncome")} />
+                </label>
+                <p className="error">{errors.netIncome?.message}</p>
+
+                <label>Soil Test Certificate
+        <input
+          type="file"
+          {...register("soilTestCertificate")}
+          disabled={soilTestValue !== "Yes"}
+        />
+        {errors.soilTestCertificate && (
+          <p className="error">{errors.soilTestCertificate.message}</p>
+        )}
+      </label>
+                 </div>
+                </div>
+               </div>
+            )}
+{currentStep === 5 && (
+              <div className="irrigation-field">
+                <div className="Current Crop Addition">
+                 <label>Water Source <span className="irrigationrequired">*</span>
+                 <select {...register("waterSource")}>
+                  <option value="">Select</option>
+                  <option value="Borewell">Borewell</option>
+                  <option value="Open Well">Open Well</option>
+                  <option value="Canal">Canal</option>
+                  <option value="Tank">Tank</option>
+                  <option value="River">River</option>
+                  <option value="Drip">Drip</option>
+                </select>
+                </label>
+                <label>Borewell Discharge (LPH) <span className="required">*</span>
+            <input {...register("borewellDischarge")} />
+            </label>
+             <p>{errors.borewellDischarge?.message}</p>
+
+            <label>Summer Discharge <span className="required">*</span>
+            <input {...register("summerDischarge")} />
+           </label>
+           <p>{errors.summerDischarge?.message}</p>
+
+            <label>Borewell Location <span className="required">*</span>
+            <input {...register("borewellLocation")} />
+           </label>
+             <p>{errors.borewellLocation?.message}</p>
+
+                <p>{errors.irrigationType?.message}</p>
+                
+                </div>
+              
+              </div>
+            )}
+
+{currentStep === 6 && (
+     <div className="other-field">
+      <h3>Bank Details</h3>
+
+      <label>Bank Name <span className="required">*</span></label>
+      <input type="text" {...register("bankName")} />
+      <p className="error">{errors.bankName?.message}</p>
+
+      <label>Account Number <span className="required">*</span></label>
+      <input type="text" {...register("accountNumber")} />
+      <p className="error">{errors.accountNumber?.message}</p>
+
+      <label>Branch Name <span className="required">*</span></label>
+      <input type="text" {...register("branchName")} />
+      <p className="error">{errors.branchName?.message}</p>
+
+      <label>IFSC Code <span className="required">*</span></label>
+      <input type="text" {...register("ifscCode")} />
+      <p className="error">{errors.ifscCode?.message}</p>
+
+      <label>Passbook <span className="required">*</span></label>
+       <input
+        type="file"
+        accept="image/*,application/pdf"
+        onChange={(e) => {
+          const file = e.target.files[0];
+          setValue("passbookFile", file); 
+          trigger("passbookFile"); 
+       }}
+        />
+         <p className="error">{errors.passbookFile?.message}</p>
+        </div>
+      )}
+
+{currentStep === 7 && (
+          <div className="other-field">
+       <label className="label">
+        Add Document <span className="required">*</span>
+       </label>
+           <select className="docinput" {...register("documentType")}>
+              <option value="">Select</option>
+               <option value="ID/ Voter Card">ID/ Voter Card</option>
+               <option value="Aadhar Number">Aadhar Number</option>
+               <option value="Pan Number">Pan Number</option>
+               <option value="Ppb Number">Ppb Number</option>
+           </select>
+           <p>{errors.documentType?.message}</p>
+
+   
+           <input type="text" placeholder="ID/ Voter Card" className="input" {...register("voterId")} />
+<p>{errors.voterId?.message}</p>
+
+<input type="text" placeholder="Aadhar Number" className="input" {...register("aadharNumber")} />
+<p>{errors.aadharNumber?.message}</p>
+
+<input type="text" placeholder="Pan Number" className="input" {...register("panNumber")} />
+<p>{errors.panNumber?.message}</p>
+
+<input type="text" placeholder="PPB Number" className="input" {...register("ppbNumber")} />
+<p>{errors.ppbNumber?.message}</p>
+
+<label className="doclabel">Passbook <span className="optional">(Optional)</span></label>
+<div
+  className="photo-box"
+  onClick={() => document.getElementById("photoInput").click()}
+>
+  {photoPreview ? (
+    <img src={photoPreview} alt="Uploaded" className="preview-img" />
+  ) : (
+    "Click to upload"
+  )}
+</div>
+
+<input
+  type="file"
+  accept="image/*"
+  id="photoInput"
+  style={{ display: "none" }}
+  onChange={(e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setValue("passbookPhoto", file);
+      setPhotoPreview(URL.createObjectURL(file)); // For preview
+    }
+  }}
+/>
+<p>{errors.passbookPhoto?.message}</p>
+</div>
+           )}
+
 <div className="btn-group">
   {currentStep === 0 ? (
     <button
