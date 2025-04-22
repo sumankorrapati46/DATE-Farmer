@@ -1,8 +1,9 @@
-.form-wrapper {
+.farmer-wrapper{
   display: flex;
   justify-content: center;
   flex-direction: row;
   padding: 40px;
+  gap: 30px;
   background-color:rgba(255, 255, 255, 0.9);
   width: auto;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -63,9 +64,10 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
-form { 
-  width: auto;
-  height: auto;
+.farmer{ 
+  width: 900px;
+  height:600px;
+  
   background-color: #fff;
   padding: 30px;
   border-radius: 12px;
@@ -126,7 +128,7 @@ p {
 .btn-group {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 5px;
   margin-top: 30px;
 }
 
@@ -226,23 +228,22 @@ button[type="button"]:hover {
   }
 }
 
-/* Popup container */
 .popup {
-  position: fixed; /* Fix the position of the popup */
-  top: 0; /* Position it at the top of the page */
+  position: fixed; 
+  top: 0; 
   left: 50%;
-  transform: translateX(-50%); /* Center horizontally */
-  background-color: white; /* Green background with transparency */
+  transform: translateX(-50%); 
+  background-color: white; 
   color: black;
   padding: 20px;
   border-radius: 8px;
-  z-index: 9999; /* Ensure the popup is above other content */
-  width: 30%; /* Optional: full width or you can set a specific width */
+  z-index: 9999;
+  width: 30%; 
   text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Optional: add shadow for visual effect */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
 }
 
-/* Popup content styling */
+
 .popup-content {
   display: flex;
   flex-direction: column;
@@ -252,11 +253,11 @@ button[type="button"]:hover {
   color: #000;
 }
 
-/* Close button styling */
+
 .popup-content button {
   margin-top: 10px;
   padding: 8px 16px;
-  background-color: blue; /* Red background for close button */
+  background-color: blue;
   color: white;
   border: none;
   border-radius: 5px;
@@ -264,5 +265,5 @@ button[type="button"]:hover {
 }
 
 .popup-content button:hover {
-  background-color: blue; /* Darker red on hover */
+  background-color: blue; 
 }

@@ -166,6 +166,7 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
   });
  const { register, control, handleSubmit, formState: { errors }, watch, trigger, setValue } = methods;
  const soilTestValue = watch("soilTest");
+ const selectedDoc = watch("documentType");
  
  const onSubmit = async (data) => {
   try {
@@ -276,12 +277,13 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
  
 
   return (
-    <div className="form-wrapper">
+    <div className="farmer-wrapper">
       <div className="form-full">
         <h2>{steps[currentStep]}</h2>
-  
+          
         <FormProvider {...methods}>
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onSubmit)} div className="farmer">
+         
             {currentStep === 0 && (
               <div className="form-grid">
                 <div className="field-left">
@@ -383,6 +385,7 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
                   <p className="error">{errors.alternativeType?.message}</p>
                 </div>
               </div>
+             
             )}
   
             {currentStep === 1 && (
@@ -653,7 +656,7 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
                   <option value="Drip">Drip</option>
                 </select>
                 </label>
-                <label>Borewell Discharge (LPH) <span className="required">*</span>
+                <label>Discharge (LPH) <span className="required">*</span>
             <input {...register("borewellDischarge")} />
             </label>
              <p>{errors.borewellDischarge?.message}</p>
@@ -663,7 +666,7 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
            </label>
            <p>{errors.summerDischarge?.message}</p>
 
-            <label>Borewell Location <span className="required">*</span>
+            <label>Location <span className="required">*</span>
             <input {...register("borewellLocation")} />
            </label>
              <p>{errors.borewellLocation?.message}</p>
@@ -712,59 +715,95 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
 {currentStep === 7 && (
           <div className="other-field">
        <label className="label">
-        Add Document <span className="required">*</span>
-       </label>
-           <select className="docinput" {...register("documentType")}>
-              <option value="">Select</option>
-               <option value="ID/ Voter Card">ID/ Voter Card</option>
-               <option value="Aadhar Number">Aadhar Number</option>
-               <option value="Pan Number">Pan Number</option>
-               <option value="Ppb Number">Ppb Number</option>
-           </select>
-           <p>{errors.documentType?.message}</p>
+  Add Document <span className="required">*</span>
+</label>
+<select className="docinput" {...register("documentType", { required: "Document Type is required" })}>
+  <option value="">Select</option>
+  <option value="voterId">ID/ Voter Card</option>
+  <option value="aadharNumber">Aadhar Number</option>
+  <option value="panNumber">Pan Number</option>
+  <option value="ppbNumber">PPB Number</option>
+</select>
+<p>{errors.documentType?.message}</p>
 
-   
-           <input type="text" placeholder="ID/ Voter Card" className="input" {...register("voterId")} />
-<p>{errors.voterId?.message}</p>
+{/* Voter ID */}
+{selectedDoc === "voterId" && (
+  <>
+    <input
+      type="text"
+      placeholder="Voter ID"
+      className="input"
+      {...register("voterId", { required: "Voter ID is required" })}
+    />
+    <p>{errors.voterId?.message}</p>
 
-<input type="text" placeholder="Aadhar Number" className="input" {...register("aadharNumber")} />
-<p>{errors.aadharNumber?.message}</p>
+    <input
+      type="file"
+      accept="image/*,application/pdf"
+      {...register("voterFile", { required: "Voter ID File is required" })}
+    />
+    <p>{errors.voterFile?.message}</p>
+  </>
+)}
 
-<input type="text" placeholder="Pan Number" className="input" {...register("panNumber")} />
-<p>{errors.panNumber?.message}</p>
+{/* Aadhar */}
+{selectedDoc === "aadharNumber" && (
+  <>
+    <input
+      type="text"
+      placeholder="Aadhar Number"
+      className="input"
+      {...register("aadharNumber", { required: "Aadhar Number is required" })}
+    />
+    <p>{errors.aadharNumber?.message}</p>
 
-<input type="text" placeholder="PPB Number" className="input" {...register("ppbNumber")} />
+    <input
+      type="file"
+      accept="image/*,application/pdf"
+      {...register("aadharFile", { required: "Aadhar File is required" })}
+    />
+    <p>{errors.aadharFile?.message}</p>
+  </>
+)}
+
+{/* PAN */}
+{selectedDoc === "panNumber" && (
+  <>
+    <input
+      type="text"
+      placeholder="PAN Number"
+      className="input"
+      {...register("panNumber", { required: "PAN Number is required" })}
+    />
+    <p>{errors.panNumber?.message}</p>
+
+    <input
+      type="file"
+      accept="image/*,application/pdf"
+      {...register("panFile", { required: "PAN File is required" })}
+    />
+    <p>{errors.panFile?.message}</p>
+  </>
+)}
+
+{/* PPB - Always Visible but Optional */}
+<input
+  type="text"
+  placeholder="PPB Number"
+  className="input"
+  {...register("ppbNumber")}
+/>
 <p>{errors.ppbNumber?.message}</p>
-
-<label className="doclabel">Passbook <span className="optional">(Optional)</span></label>
-<div
-  className="photo-box"
-  onClick={() => document.getElementById("photoInput").click()}
->
-  {photoPreview ? (
-    <img src={photoPreview} alt="Uploaded" className="preview-img" />
-  ) : (
-    "Click to upload"
-  )}
-</div>
 
 <input
   type="file"
-  accept="image/*"
-  id="photoInput"
-  style={{ display: "none" }}
-  onChange={(e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setValue("passbookPhoto", file);
-      setPhotoPreview(URL.createObjectURL(file)); // For preview
-    }
-  }}
+  accept="image/*,application/pdf"
+  {...register("ppbFile")}
 />
-<p>{errors.passbookPhoto?.message}</p>
+<p>{errors.ppbFile?.message}</p>
+
 </div>
            )}
-
 <div className="btn-group">
   {currentStep === 0 ? (
     <button
@@ -804,11 +843,12 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
   <div className="popup">
     <div className="popup-content">
       <h3>Success!</h3>
-      <p>Farmer form submitted successfully.</p>
+      Farmer form submitted successfully.
       <button onClick={() => setShowSuccessPopup(false)}>OK</button>
     </div>
   </div>
 )}
+
           </form>
         </FormProvider>
       </div>

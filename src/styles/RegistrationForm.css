@@ -77,9 +77,9 @@
     font-size: 12px;
   }
   
-  .submit-btn {
+  .registersubmit-btn {
     display: block;
-    background: #388d19;
+    
     width: 100%;
     border-radius: 5px;
     font-size: 18px;
@@ -88,8 +88,8 @@
    
   }
   
-  .submit-btn:disabled {
-    background: #388d19;
+  .registersubmit-btn:disabled {
+    
     cursor: not-allowed;
   }
   

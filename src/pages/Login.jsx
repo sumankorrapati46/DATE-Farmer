@@ -1,6 +1,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { Link } from "react-router-dom";
 import * as yup from "yup";
 import axios from "axios";
 import "../styles/Login.css"; // Add your styles
@@ -61,7 +62,7 @@ const Login= () => {
               </div>
             </div>
 
-            <button type="submit" className="login-btn">Login</button>
+            <button type="submit" className="login-btn"><Link to="/formerdetails">Login</Link></button>
             <div className="form-links">
               <a href="/forgot-password">Forgot your password?</a>
               <a href="/forgot-username">Forgot your ID?</a>

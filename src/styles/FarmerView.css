@@ -1,13 +1,16 @@
 /* Container */
 .farmer-view-container {
     display: flex;
-   
+    
     flex-direction: column;
     min-height: 100vh;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f7fafc;
   }
-  
+  .non-editable-heading {
+    user-select: none;     /* Prevents text selection */
+    cursor: default;       /* Keeps default arrow cursor */
+  }
   /* Header */
   .header {
     height: 120px;
@@ -51,6 +54,7 @@
     border-right: 1px solid #e5e7eb;
     padding: 20px 10px;
     overflow-y: auto;
+    
   }
   
   .sidebar-item {
@@ -60,6 +64,7 @@
     cursor: pointer;
     color: #374151;
     transition: all 0.2s ease-in-out;
+    
   }
   
   .sidebar-item:hover {
