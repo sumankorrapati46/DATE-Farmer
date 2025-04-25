@@ -11,7 +11,6 @@ import logo1 from "./assets/leftlogo.png";
 import logo2 from "./assets/rightlogo.png";
 import "./App.css"
 
-
 function Layout({ children, currentStep = 0, onStepChange }) {
   const steps = [
     "🏛️ Personal Information",
