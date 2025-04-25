@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import FarmerForm from "./pages/Formerform";
 import Login from "./pages/Login";
 import Register from "./pages/RegistrationForm";
@@ -21,8 +22,6 @@ function Layout({ children, currentStep = 0, onStepChange }) {
     "💧 Irrigation Details",
     "🔍 Other Information",
     "📄 Documents",
-    "🛂 Portal Access",
-    "🚜 View Farmer",
   ];
 
   return (
