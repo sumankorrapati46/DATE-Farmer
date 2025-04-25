@@ -6,7 +6,7 @@ export const registerUser = (userData) => {
   return axios.post(`${API_BASE_URL}/auth/register`, userData);
 };
 
-// Example login API
+// Example login API added user
 export const loginUser = (credentials) => {
   return axios.post(`${API_BASE_URL}/auth/login`, credentials);
 };
