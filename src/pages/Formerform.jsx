@@ -1,4 +1,4 @@
-import React, { useState } from "react"; // Import React and useState
+import React, { useState } from "react"; 
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import Select from 'react-select';
@@ -322,7 +322,7 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
                 </div>
   
                 <div className="field-right">
-                  <label>Salutation <span className="required">*</span>
+                  <label>Salutation <span className="optional">(Optional)</span>
                     <select {...register("salutation")}>
                       <option value="">Select Salutation</option>
                       <option value="D/O">D/O</option>
@@ -354,7 +354,7 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
                   </label>
                   <p className="error">{errors.dob?.message}</p>
   
-                  <label>Father Name <span className="required">*</span>
+                  <label>Father Name <span className="optional">(Optional)</span>
                     <input type="text" {...register("fatherName")} />
                   </label>
                   <p>{errors.fatherName?.message}</p>
@@ -369,7 +369,7 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
                   </label>
                   <p className="error">{errors.contactNumber?.message}</p>
   
-                  <label>Alternative Type <span className="required">*</span>
+                  <label>Alternative Type <span className="optional">(Optional)</span>
                     <select {...register("alternativeType")}>
                       <option value="">Select Relation</option>
                       <option value="Father">Father</option>
@@ -492,7 +492,7 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
 {currentStep === 2 && (
                 <>
               <div className="profes-field">
-                <label>Education <span className="required">*</span></label>
+                <label>Education <span className="optional">(Optional)</span></label>
                 <select {...register("education")}>
                   <option value="">Select</option>
                   <option value="Primary Schooling">Primary Schooling</option>
@@ -504,7 +504,7 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
                 </select>
                 <p>{errors.occupation?.message}</p>
 
-                <label>Experience <span className="required">*</span>
+                <label>Experience <span className="optional">(Optional)</span>
                   <input {...register("experience")} placeholder="e.g. 15 Years" />
                 </label>
                 <p>{errors.experience?.message}</p>
@@ -526,24 +526,24 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
                     <input type="file" accept="image/*" onChange={handlePhotoChange} className="photo-input" />
                   </div>
                  
-                    <label>Survey Numbers <span className="required">*</span>
+                    <label>Survey Numbers <span className="optional">(Optional)</span>
                       <input {...register("surveyNumber")} />
                     </label>
                     <p>{errors.surveyNumber?.message}</p>
 
-                    <label>Total Land Holding (In Acres Nos) <span className="required">*</span>
+                    <label>Total Land Holding (In Acres Nos) <span className="optional">(Optional)</span>
                       <input {...register("totalLandHolding")} />
                     </label>
                     <p>{errors.totalLandHolding?.message}</p>
 
-                    <label>Geo-tag <span className="required">*</span>
+                    <label>Geo-tag <span className="optional">(Optional)</span>
                      <input {...register("geoTag")} />
                     </label>
                     <p>{errors.geoTag?.message}</p>
                     </div>
 
                     <div className="cropform-columnright">
-                    <label>Select Crop <span className="required">*</span>
+                    <label>Select Crop <span className="optional">(Optional)</span>
                     <select {...register("selectCrop")}>
                       <option value="">Select</option>
                       <option value="Grains">Grains</option>
@@ -553,12 +553,12 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
                     </label>
                     <p>{errors.selectCrop?.message}</p>
 
-                    <label>Net Income (As per Current Crop/Yr) <span className="required">*</span>
+                    <label>Net Income (As per Current Crop/Yr) <span className="optional">(Optional)</span>
                      <input {...register("netIncome")} />
                     </label>
                     <p>{errors.netIncome?.message}</p>
 
-                    <label>Soil Test <span className="required">*</span>
+                    <label>Soil Test <span className="optional">(Optional)</span>
                     <select {...register("soilTest")}>
                       <option value="">Select</option>
                       <option value="Yes">Yes</option>
@@ -587,17 +587,17 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
               <div className="proposed-field">
                  <div className="proposedform-grid">
                  <div className="proposedform-columnleft">
-                <label>Survey Numbers <span className="required">*</span>
+                <label>Survey Numbers <span className="optional">(Optional)</span>
                   <input {...register("surveyNumber")} />
                 </label>
                 <p>{errors.surveyNumber?.message}</p>
 
-                <label>Geo-tag <span className="required">*</span>
+                <label>Geo-tag <span className="optional">(Optional)</span>
                   <input {...register("geoTag")} placeholder="Latitude, Longitude" />
                 </label>
                 <p>{errors.geoTag?.message}</p>
 
-                <label>Select Crop <span className="required">*</span>
+                <label>Select Crop <span className="optional">(Optional)</span>
                 <select {...register("cropType")}>
                   <option value="">Select</option>
                   <option value="Grains">Grains</option>
@@ -607,7 +607,7 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
                 </label>
                 <p>{errors.cropType?.message}</p>
 
-                <label>Soil Test <span className="required">*</span>
+                <label>Soil Test <span className="optional">(Optional)</span>
                 <select {...register("soilTest")}>
                   <option value="">Select</option>
                   <option value="Yes">Yes</option>
@@ -618,12 +618,12 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
                 </div>
 
                 <div className="proposedform-columnright">
-                <label>Total Land Holding (In Acres) <span className="required">*</span>
+                <label>Total Land Holding (In Acres) <span className="optional">(Optional)</span>
                 <input type="text" {...register("totalLandHolding")} />
                 </label>
                 <p>{errors.totalLandHolding?.message}</p>
 
-                <label>Net Income (Per Crop/Yr) <span className="required">*</span>
+                <label>Net Income (Per Crop/Yr) <span className="optional">(Optional)</span>
                 <input type="text" {...register("netIncome")} />
                 </label>
                 <p className="error">{errors.netIncome?.message}</p>
@@ -645,7 +645,7 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
 {currentStep === 5 && (
               <div className="irrigation-field">
                 <div className="Current Crop Addition">
-                 <label>Water Source <span className="irrigationrequired">*</span>
+                 <label>Water Source <span className="irrigationrequired">(Optional)</span>
                  <select {...register("waterSource")}>
                   <option value="">Select</option>
                   <option value="Borewell">Borewell</option>
@@ -656,17 +656,17 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
                   <option value="Drip">Drip</option>
                 </select>
                 </label>
-                <label>Discharge (LPH) <span className="required">*</span>
+                <label>Discharge (LPH) <span className="optional">(Optional)</span>
             <input {...register("borewellDischarge")} />
             </label>
              <p>{errors.borewellDischarge?.message}</p>
 
-            <label>Summer Discharge <span className="required">*</span>
+            <label>Summer Discharge <span className="optional">(Optional)</span>
             <input {...register("summerDischarge")} />
            </label>
            <p>{errors.summerDischarge?.message}</p>
 
-            <label>Location <span className="required">*</span>
+            <label>Location <span className="optional">(Optional)</span>
             <input {...register("borewellLocation")} />
            </label>
              <p>{errors.borewellLocation?.message}</p>
@@ -682,23 +682,23 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
      <div className="other-field">
       <h3>Bank Details</h3>
 
-      <label>Bank Name <span className="required">*</span></label>
+      <label>Bank Name <span className="optional">(Optional)</span></label>
       <input type="text" {...register("bankName")} />
       <p className="error">{errors.bankName?.message}</p>
 
-      <label>Account Number <span className="required">*</span></label>
+      <label>Account Number <span className="optional">(Optional)</span></label>
       <input type="text" {...register("accountNumber")} />
       <p className="error">{errors.accountNumber?.message}</p>
 
-      <label>Branch Name <span className="required">*</span></label>
+      <label>Branch Name <span className="optional">(Optional)</span></label>
       <input type="text" {...register("branchName")} />
       <p className="error">{errors.branchName?.message}</p>
 
-      <label>IFSC Code <span className="required">*</span></label>
+      <label>IFSC Code <span className="optional">(Optional)</span></label>
       <input type="text" {...register("ifscCode")} />
       <p className="error">{errors.ifscCode?.message}</p>
 
-      <label>Passbook <span className="required">*</span></label>
+      <label>Passbook <span className="optional">(Optional)</span></label>
        <input
         type="file"
         accept="image/*,application/pdf"
@@ -715,7 +715,7 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
 {currentStep === 7 && (
           <div className="other-field">
        <label className="label">
-  Add Document <span className="required">*</span>
+  Add Document <span className="optional">(Optional)</span>
 </label>
 <select className="docinput" {...register("documentType", { required: "Document Type is required" })}>
   <option value="">Select</option>

@@ -5,6 +5,7 @@ import { parse, isValid, differenceInYears } from "date-fns";
 import * as yup from "yup";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { registerUser } from "../api/apiService";
 import "../styles/RegistrationForm.css";
 import background from "../assets/background-image.png";
 import logo from "../assets/rightlogo.png";
@@ -50,7 +51,10 @@ const RegistrationForm = () => {
       setLoading(true); // Optional: show loader/spinner
   
       // Simulate API delay (e.g., 2 seconds) with setTimeout
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      //await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await registerUser(data);
+      console.log("Backend response:", response.data);
+
   
       // After the "mock" delay, you can consider it successful
       console.log("Mock API response:", data);

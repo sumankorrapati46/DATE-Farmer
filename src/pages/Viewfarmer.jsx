@@ -31,7 +31,16 @@ const FarmerView = () => {
       }));
     };
     
-    
+    const [formData, setFormData] = useState({});
+
+const handleChange = (e) => {
+  const { name, value } = e.target;
+  setFormData((prevData) => ({
+    ...prevData,
+    [name]: value,
+  }));
+};
+
 
     const {
       register,
