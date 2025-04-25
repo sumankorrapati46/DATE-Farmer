@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { parse, isValid, differenceInYears } from "date-fns";
 import * as yup from "yup";
 import axios from "axios";
+import { Link } from "react-router-dom";
+import { registerUser } from "../api/apiService";
 import "../styles/RegistrationForm.css";
 import background from "../assets/background-image.png";
 import logo from "../assets/rightlogo.png";
@@ -10,7 +13,17 @@ import logo from "../assets/rightlogo.png";
 const schema = yup.object().shape({
   firstName: yup.string().required("First Name is required"),
   lastName: yup.string().required("Last Name is required"),
-  dateOfBirth: yup.string().required("Date of Birth is required"),
+  dob: yup.string().required("Date of Birth is required")
+        .test("valid-format", "Enter date as DD/MM/YYYY", (value) => {
+          const parsed = parse(value, "dd/MM/yyyy", new Date());
+          return isValid(parsed);
+        })
+        .test("age-limit", "Age must be between 18 and 90 years", (value) => {
+          const parsed = parse(value, "dd/MM/yyyy", new Date());
+          if (!isValid(parsed)) return false;
+          const age = differenceInYears(new Date(), parsed);
+          return age >= 18 && age <= 90;
+        }),
   gender: yup.string().required("Gender is required"),
   country: yup.string().required("Country is required"),
   state: yup.string().required("State is required"),
@@ -32,16 +45,24 @@ const RegistrationForm = () => {
   });
 
   const [loading, setLoading] = useState(false);
-
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const onSubmit = async (data) => {
-    setLoading(true);
     try {
-      const response = await axios.post("https://your-api-endpoint.com/register", data);
-      alert("Registration Successful!");
-      console.log(response.data);
+      setLoading(true); // Optional: show loader/spinner
+  
+      // Simulate API delay (e.g., 2 seconds) with setTimeout
+      //await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await registerUser(data);
+      console.log("Backend response:", response.data);
+
+  
+      // After the "mock" delay, you can consider it successful
+      console.log("Mock API response:", data);
+  
+      setShowSuccessPopup(true); // Show popup after "successful" submission
     } catch (error) {
-      alert("Registration Failed!");
-      console.error(error);
+      console.error("Error submitting form:", error);
+      alert("Submission failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -64,15 +85,16 @@ const RegistrationForm = () => {
           <div className="registration-grid">
             <div className="form-column">
               <div className="registrationform-group">
-                <label>First Name *</label>
+                <label>First Name <span className="required">*</span></label>
                 <input type="text" {...register("firstName")} />
                 <p className="error">{errors.firstName?.message}</p>
               </div>
 
               <div className="registrationform-group">
-                <label>Date of Birth *</label>
-                <input type="date" {...register("dateOfBirth")} />
-                <p className="error">{errors.dateOfBirth?.message}</p>
+              <label>Date of Birth (DD/MM/YYYY) <span className="required">*</span>
+               <input type="text" placeholder="DD/MM/YYYY" {...register("dob")}/>
+              </label>
+               <p className="error">{errors.dob?.message}</p>
               </div>
 
               <div className="registrationform-group">
@@ -151,13 +173,27 @@ const RegistrationForm = () => {
             </div>
           </div>
         </div>
-        <button type="submit" disabled={loading} className="submit-btn">
-                 {loading ? "Registering..." : "Register"}
-              </button>
+        <button type="register" disabled={loading} className="registersubmit-btn">
+        Register Now</button>
+             
+
+              {showSuccessPopup && (
+  <div className="popup">
+    <div className="popup-content">
+      <h3>Success!</h3>
+      Registration successfully completed.
+      <button onClick={() => setShowSuccessPopup(false)}>OK</button>
+    </div>
+  </div>
+)}
+<div className="login-link">
+      <h3>   Already a member? <Link to="/login">Login</Link></h3> 
+        </div>
       </div>
     </form>
   );
 };
 
 export default RegistrationForm;
+
 
