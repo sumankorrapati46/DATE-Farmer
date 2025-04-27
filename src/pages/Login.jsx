@@ -5,16 +5,16 @@ import { Link } from "react-router-dom";
 import * as yup from "yup";
 import axios from "axios";
 import "../styles/Login.css"; // Add your styles
-import background from "../assets/background-image.png"; 
-import logo from "../assets/rightlogo.png"; 
+import background from "../assets/background-image.png";
+import logo from "../assets/rightlogo.png";
 import illustration from "../assets/illustration.png"; // Your image
-
+ 
 // Validation Schema
 const schema = yup.object().shape({
-  email: yup.string().email("Enter a valid email").required("Email is required"),
+  userName: yup.string().required("userName is required"),
   password: yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
 });
-
+ 
 const Login= () => {
   const {
     register,
@@ -24,26 +24,26 @@ const Login= () => {
   } = useForm({
     resolver: yupResolver(schema),
   });
-
+ 
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post("https://your-api-endpoint.com/login", data);
+      const response = await axios.post("http://localhost:8080/api/auth/login", data);
       alert("Login Successful!");
       console.log(response.data);
       if (response.success) {
         reset();
       }
-
+ 
     } catch (error) {
       alert("Login Failed!");
       console.error(error);
     }
   };
-
+ 
   return (
     <div className="login-container" style={{ backgroundImage: `url(${background})` }}>
       <img src={logo} alt="Logo" className="logo" />  {/* Top-Right Logo */}
-
+ 
       <div className="login-content">
         {/* Left Side - Login Form */}
         <div className="login-form">
@@ -51,9 +51,9 @@ const Login= () => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="form-row">
               <div className="form-group">
-                <label>Email/Phone/ID *</label>
-                <input type="text" {...register("email")} />
-                <p className="error">{errors.email?.message}</p>
+                <label>userName/Phone/ID *</label>
+                <input type="text" {...register("userName")} />
+                <p className="error">{errors.userName?.message}</p>
               </div>
               <div className="form-group">
                 <label>Password *</label>
@@ -61,7 +61,7 @@ const Login= () => {
                 <p className="error">{errors.password?.message}</p>
               </div>
             </div>
-
+ 
             <button type="submit" className="login-btn"><Link to="/formerdetails">Login</Link></button>
             <div className="form-links">
               <a href="/forgot-password">Forgot your password?</a>
@@ -70,8 +70,8 @@ const Login= () => {
           </form>
         </div>
         </div>
-        
-
+       
+ 
         {/* Right Side - Illustration */}
         <div className="login-image">
           <img src={illustration} alt="Login Illustration" />
@@ -79,5 +79,5 @@ const Login= () => {
      </div>
   );
 };
-
+ 
 export default Login;

@@ -10,7 +10,7 @@ import FarmerView from "./pages/Viewfarmer"
 import logo1 from "./assets/leftlogo.png";
 import logo2 from "./assets/rightlogo.png";
 import "./App.css"
-
+// updated location
 
 function Layout({ children, currentStep = 0, onStepChange }) {
   const steps = [
