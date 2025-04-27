@@ -1,0 +1,96 @@
+.registration-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-size: cover;
+    padding: 20px;
+    position: relative;
+  }
+  
+  .registration-logo {
+    position: absolute;
+    top: 30px;
+    right: 40px;
+    width: 150px;
+  }
+   
+  .registration-form-container {
+    background-color: rgba(245, 245, 245, 0.479);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    width: 650px;
+    height: 850px;
+    margin-right: 13%;
+   
+  }
+  .registration-form{
+   width: 650px; 
+   height: 550px;
+   align-items: center;
+
+  }
+
+  .registration-form-title{
+    margin-right: 40%;
+    margin-top: 5%;
+    padding: 5px;
+  }
+  
+  h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: black;
+  }
+  
+  .registration-grid {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .form-column {
+    flex: 1;
+    width:100%;
+    height: 100%;
+  }
+  
+  .registrationform-group {
+    margin-bottom: 15px;
+  }
+  
+  .registrationform-group label {
+    display: block;
+    font-weight: bold;
+  }
+  
+  .registrationform-group input,
+  .registrationform-group select {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #9a9999;
+    border-radius: 5px;
+  }
+  
+  .error {
+    color: red;
+    font-size: 12px;
+  }
+  
+  .registersubmit-btn {
+    display: block;
+    
+    width: 100%;
+    border-radius: 5px;
+    font-size: 18px;
+    margin-top: 80px;
+    align-items: flex-start;
+   
+  }
+  
+  .registersubmit-btn:disabled {
+    
+    cursor: not-allowed;
+  }
+  
+  
