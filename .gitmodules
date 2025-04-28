@@ -1,8 +1,0 @@
-[submodule "frontend/farmer"]
-	path = frontend/farmer
-	url = https://github.com/sumankorrapati46/DATE-frontend.git
-	branch = main
-[submodule "DATE-frontend"]
-	path = DATE-frontend
-	url = https://github.com/sumankorrapati46/DATE-frontend.git
-	branch = main
