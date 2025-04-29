@@ -1,5 +1,7 @@
 import React, { useState } from "react"; 
 import { useForm, FormProvider, Controller } from "react-hook-form";
+import { Link } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 import { yupResolver } from '@hookform/resolvers/yup';
 import Select from 'react-select';
 import * as yup from 'yup';
@@ -141,6 +143,7 @@ const stepSchemas = [
           
 ];
 
+
 // usage in component
 
 const steps = ["Personal Information", "Address","Professional Information","Current Crop Information", "Proposed Crop Information","Irrigation Details","Other Information",
@@ -167,7 +170,7 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
  const { register, control, handleSubmit, formState: { errors }, watch, trigger, setValue } = methods;
  const soilTestValue = watch("soilTest");
  const selectedDoc = watch("documentType");
- 
+ const navigate = useNavigate();
  const onSubmit = async (data) => {
   try {
     setLoading(true); // Optional: show loader/spinner
@@ -844,7 +847,14 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
     <div className="popup-content">
       <h3>Success!</h3>
       Farmer form submitted successfully.
-      <button onClick={() => setShowSuccessPopup(false)}>OK</button>
+      <button
+      onClick={() => {
+        setShowSuccessPopup(false); // Close the popup
+        navigate('/view-farmer');   // Navigate to the desired route
+      }}
+    >
+      OK
+    </button>
     </div>
   </div>
 )}
