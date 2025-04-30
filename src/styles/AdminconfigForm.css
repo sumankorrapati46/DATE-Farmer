@@ -1,0 +1,68 @@
+body {
+    font-family: 'Times New Roman', serif;
+  }
+  
+  .admin-container {
+    min-height: 100vh;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Header Styles */
+  .admintop-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #ccc;
+  }
+  .admin-form{
+     width: 800px;
+     height: 500px;
+
+  }
+  
+  .logo-title {
+    color: #004d00;
+  }
+  
+  .logo-title .title {
+    display: block;
+    font-size: 1.75rem;
+    font-weight: bold;
+    line-height: 1.2;
+  }
+  
+  .logo-title .subtitle {
+    font-size: 0.85rem;
+    font-weight: normal;
+  }
+
+/* Step Navigation */
+.adminmiddle-container {
+    background-color: #006838;
+  }
+  
+  .adminnav-links {
+    display: flex;
+    justify-content: space-around;
+    padding: 0.8rem 1rem;
+    flex-wrap: wrap;
+  }
+  
+  .adminnav-item {
+    color: #fff;
+    padding: 0.5rem 1rem;
+    margin: 0.3rem;
+    background-color: #3d9970;
+    border-radius: 5px;
+    transition: all 0.2s ease;
+  }
+  
+  .adminnav-item.active {
+    background-color: #fff;
+    color: #2c6e49;
+    font-weight: bold;
+    border: 2px solid #3d9970;
+  }
