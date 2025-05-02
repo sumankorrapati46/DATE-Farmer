@@ -52,17 +52,34 @@ body {
   }
   
   .adminnav-item {
-    color: #fff;
-    padding: 0.5rem 1rem;
-    margin: 0.3rem;
-    background-color: #3d9970;
-    border-radius: 5px;
-    transition: all 0.2s ease;
+    position: relative; /* Make this the positioning parent */
+    margin-right: 20px;
+    color: white;
   }
   
-  .adminnav-item.active {
-    background-color: #fff;
-    color: #2c6e49;
-    font-weight: bold;
-    border: 2px solid #3d9970;
+  .adminnav-dropdown {
+    position: absolute; /* Take out of document flow */
+    top: 100%; /* Position below the parent */
+    left: 0;
+    background-color: white;
+    color: black;
+    min-width: 150px; /* or adjust as needed */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
   }
+  
+  .adminnav-subitem {
+    display: block;
+    padding: 8px 12px;
+    background: white;
+    color: black;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+  }
+  
+  .adminnav-subitem:hover {
+    background: #ddd;
+  }
+  
