@@ -105,6 +105,27 @@ export default function AdminconfigForm() {
     { value: "write", label: "Edit" },
     { value: "delete", label: "Delete" },
   ];
+  const childOrder = [
+    "👤 User",
+    "🏛️ Role",
+    "🧑‍🌾 Farmer Code",
+    "👥 Employee Code",
+    "📧 Mail Templates",
+    "📱 SMS Templates"
+  ];
+  function handlePrevious() {
+    const currentIndex = childOrder.indexOf(selectedChild);
+    if (currentIndex > 0) {
+      handleChildSelect(childOrder[currentIndex - 1]);
+    }
+  }
+  
+  function handleNext() {
+    const currentIndex = childOrder.indexOf(selectedChild);
+    if (currentIndex < childOrder.length - 1) {
+      handleChildSelect(childOrder[currentIndex + 1]);
+    }
+  }
 
   return (
     <div className="admin-container">
@@ -164,7 +185,7 @@ export default function AdminconfigForm() {
                 />
                 {errors.access && <p className="error">Access is required</p>}
 
-                <button type="submit">Submit Role</button>
+                <button type="submit">Next</button>
               </div>
             )}
 
@@ -190,9 +211,100 @@ export default function AdminconfigForm() {
                 />
                 {errors.assignedRole && <p className="error">Role is required</p>}
 
-                <button type="submit">Submit User</button>
+                <div className="button-row">
+      <button type="button" onClick={handlePrevious}>Previous</button>
+      <button type="submit">Next</button>
+    </div>
               </div>
             )}
+
+{selectedChild === "🧑‍🌾 Farmer Code" && (
+  <div className="adminform-section">
+    <h2>Farmer Code Configuration</h2>
+
+    <label>Prefix *</label>
+    <input type="text" {...register("farmerPrefix", { required: true })} />
+    {errors.farmerPrefix && <p className="error">Prefix is required</p>}
+
+    <label>Number of Digits *</label>
+    <input type="number" {...register("farmerDigits", { required: true, min: 1 })} />
+    {errors.farmerDigits && <p className="error">Number of digits is required</p>}
+
+    <label>Starting Number *</label>
+    <input type="number" {...register("farmerStart", { required: true })} />
+    {errors.farmerStart && <p className="error">Starting number is required</p>}
+
+    <div className="button-row">
+      <button type="button" onClick={handlePrevious}>Previous</button>
+      <button type="submit">Next</button>
+    </div>
+  </div>
+)}
+
+{selectedChild === "👥 Employee Code" && (
+  <div className="adminform-section">
+    <h2>Employee Code Configuration</h2>
+
+    <label>Prefix *</label>
+    <input type="text" {...register("employeePrefix", { required: true })} />
+    {errors.employeePrefix && <p className="error">Prefix is required</p>}
+
+    <label>Number of Digits *</label>
+    <input type="number" {...register("employeeDigits", { required: true, min: 1 })} />
+    {errors.employeeDigits && <p className="error">Number of digits is required</p>}
+
+    <label>Starting Number *</label>
+    <input type="number" {...register("employeeStart", { required: true })} />
+    {errors.employeeStart && <p className="error">Starting number is required</p>}
+
+    <div className="button-row">
+      <button type="button" onClick={handlePrevious}>Previous</button>
+      <button type="submit">Next</button>
+    </div>
+  </div>
+)}
+
+{selectedChild === "📧 Mail Templates" && (
+  <div className="adminform-section">
+    <h2>Mail Templates</h2>
+
+    <label>Template Name *</label>
+    <input type="text" {...register("mailTemplateName", { required: true })} />
+    {errors.mailTemplateName && <p className="error">Template name is required</p>}
+
+    <label>Subject *</label>
+    <input type="text" {...register("mailSubject", { required: true })} />
+    {errors.mailSubject && <p className="error">Subject is required</p>}
+
+    <label>Body *</label>
+    <textarea {...register("mailBody", { required: true })} />
+    {errors.mailBody && <p className="error">Body is required</p>}
+
+    <div className="button-row">
+      <button type="button" onClick={handlePrevious}>Previous</button>
+      <button type="submit">Next</button>
+    </div>
+  </div>
+)}
+
+{selectedChild === "📱 SMS Templates" && (
+  <div className="adminform-section">
+    <h2>SMS Templates</h2>
+
+    <label>Template Name *</label>
+    <input type="text" {...register("smsTemplateName", { required: true })} />
+    {errors.smsTemplateName && <p className="error">Template name is required</p>}
+
+    <label>Message *</label>
+    <textarea {...register("smsMessage", { required: true })} />
+    {errors.smsMessage && <p className="error">Message is required</p>}
+
+    <div className="button-row">
+  <button type="button" onClick={handlePrevious}>Previous</button>
+  <button type="button" onClick={handleNext}>Next</button>
+</div>
+  </div>
+)}
           </form>
         </FormProvider>
         {/* Right side image */}
