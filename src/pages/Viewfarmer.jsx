@@ -105,7 +105,7 @@ const handleChange = (e) => {
           </div>
   
           {/* Main Content */}
-          <div className="main-content">
+          <div className="viewmain-content">
             {currentStep === 0 && (
               <div>
                  <button onClick={() => setIsEditing(true)} className="viwe-button">Edit</button>

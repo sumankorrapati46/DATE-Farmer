@@ -49,9 +49,9 @@ export default function AdminconfigForm() {
   const steps = [
     {
       label: "🏛️ User & Roles",
-      children: [
-        { label: "👤 User" },
+     children: [
         { label: "🏛️ Role" },
+        { label: "👤 User" },
       ],
     },
     {
@@ -63,14 +63,22 @@ export default function AdminconfigForm() {
         { label: "📱 SMS Templates", path: "/personalization/sms-templates" },
       ],
     },
-    { label: "⚙️ Settings" },
+    { label: "⚙️ Settings",
+      children: [
+        { label: "🌍 Country Settings", path: "/settings/country-settings" },
+        { label: "🌍 Global Area", path: "/settings/global-area" },
+        { label: "🌱 Crop Settings", path: "/settings/crop-settings" },
+      ],
+    },
     { label: "📌 Preferences" },
+    
   ];
 
   const methods = useForm();
   const {
     register,
     handleSubmit,
+    watch,
     control,
     trigger,
     formState: { errors },
@@ -111,7 +119,10 @@ export default function AdminconfigForm() {
     "🧑‍🌾 Farmer Code",
     "👥 Employee Code",
     "📧 Mail Templates",
-    "📱 SMS Templates"
+    "📱 SMS Templates",
+    "🌍 Country Settings",
+    "🌍 Global Area",
+    "🌱 Crop Settings"
   ];
   function handlePrevious() {
     const currentIndex = childOrder.indexOf(selectedChild);
@@ -185,7 +196,9 @@ export default function AdminconfigForm() {
                 />
                 {errors.access && <p className="error">Access is required</p>}
 
+                 <div className="admin-btn">
                 <button type="submit">Next</button>
+              </div>
               </div>
             )}
 
@@ -211,7 +224,7 @@ export default function AdminconfigForm() {
                 />
                 {errors.assignedRole && <p className="error">Role is required</p>}
 
-                <div className="button-row">
+                <div className="admin-btn">
       <button type="button" onClick={handlePrevious}>Previous</button>
       <button type="submit">Next</button>
     </div>
@@ -220,21 +233,19 @@ export default function AdminconfigForm() {
 
 {selectedChild === "🧑‍🌾 Farmer Code" && (
   <div className="adminform-section">
-    <h2>Farmer Code Configuration</h2>
+    <h2>Farmer Code </h2>
 
     <label>Prefix *</label>
     <input type="text" {...register("farmerPrefix", { required: true })} />
     {errors.farmerPrefix && <p className="error">Prefix is required</p>}
 
-    <label>Number of Digits *</label>
-    <input type="number" {...register("farmerDigits", { required: true, min: 1 })} />
-    {errors.farmerDigits && <p className="error">Number of digits is required</p>}
+   
 
     <label>Starting Number *</label>
     <input type="number" {...register("farmerStart", { required: true })} />
     {errors.farmerStart && <p className="error">Starting number is required</p>}
 
-    <div className="button-row">
+    <div className="admin-btn">
       <button type="button" onClick={handlePrevious}>Previous</button>
       <button type="submit">Next</button>
     </div>
@@ -243,21 +254,19 @@ export default function AdminconfigForm() {
 
 {selectedChild === "👥 Employee Code" && (
   <div className="adminform-section">
-    <h2>Employee Code Configuration</h2>
+    <h2>Employee Code </h2>
 
     <label>Prefix *</label>
     <input type="text" {...register("employeePrefix", { required: true })} />
     {errors.employeePrefix && <p className="error">Prefix is required</p>}
 
-    <label>Number of Digits *</label>
-    <input type="number" {...register("employeeDigits", { required: true, min: 1 })} />
-    {errors.employeeDigits && <p className="error">Number of digits is required</p>}
+    
 
     <label>Starting Number *</label>
     <input type="number" {...register("employeeStart", { required: true })} />
     {errors.employeeStart && <p className="error">Starting number is required</p>}
 
-    <div className="button-row">
+    <div className="admin-btn">
       <button type="button" onClick={handlePrevious}>Previous</button>
       <button type="submit">Next</button>
     </div>
@@ -280,7 +289,7 @@ export default function AdminconfigForm() {
     <textarea {...register("mailBody", { required: true })} />
     {errors.mailBody && <p className="error">Body is required</p>}
 
-    <div className="button-row">
+    <div className="admin-btn">
       <button type="button" onClick={handlePrevious}>Previous</button>
       <button type="submit">Next</button>
     </div>
@@ -299,12 +308,178 @@ export default function AdminconfigForm() {
     <textarea {...register("smsMessage", { required: true })} />
     {errors.smsMessage && <p className="error">Message is required</p>}
 
-    <div className="button-row">
+    <div className="admin-btn">
   <button type="button" onClick={handlePrevious}>Previous</button>
   <button type="button" onClick={handleNext}>Next</button>
 </div>
   </div>
 )}
+           {selectedChild === "🌍 Country Settings" && (
+  <div className="adminform-section">
+    <h2>Country Settings</h2>
+
+    {/* Country */}
+    <label>Country *</label>
+    <select {...register("country", { required: true })}>
+      <option value="">Add Country</option>
+      <option value="India">India</option>
+      <option value="USA">USA</option>
+    </select>
+    {errors.country && <p className="error">Country is required</p>}
+
+    {/* State */}
+    <label>State *</label>
+    <select {...register("state", { required: true })} disabled={!watch("country")}>
+      <option value="">Map State to Country</option>
+      {watch("country") === "India" && (
+        <>
+          <option value="Karnataka">Karnataka</option>
+          <option value="Maharashtra">Maharashtra</option>
+        </>
+      )}
+      {watch("country") === "USA" && (
+        <>
+          <option value="California">California</option>
+          <option value="Texas">Texas</option>
+        </>
+      )}
+    </select>
+    {errors.state && <p className="error">State is required</p>}
+
+    {/* District */}
+    <label>District *</label>
+    <select {...register("district", { required: true })} disabled={!watch("state")}>
+      <option value="">Map District to State</option>
+      {watch("state") === "Karnataka" && (
+        <>
+          <option value="Bangalore">Bangalore</option>
+          <option value="Mysore">Mysore</option>
+        </>
+      )}
+      {watch("state") === "California" && (
+        <>
+          <option value="LA">Los Angeles</option>
+          <option value="SF">San Francisco</option>
+        </>
+      )}
+    </select>
+    {errors.district && <p className="error">District is required</p>}
+
+    {/* Block */}
+    <label>Block (mandal) *</label>
+    <select {...register("block", { required: true })} disabled={!watch("district")}>
+      <option value="">Map Block (mandal) to District</option>
+      {watch("district") === "Bangalore" && (
+        <>
+          <option value="Block 1">Block 1</option>
+          <option value="Block 2">Block 2</option>
+        </>
+      )}
+      {watch("district") === "LA" && (
+        <>
+          <option value="Block A">Block A</option>
+          <option value="Block B">Block B</option>
+        </>
+      )}
+    </select>
+    {errors.block && <p className="error">Block (mandal) is required</p>}
+
+    {/* Village */}
+    <label>Village *</label>
+    <select {...register("village", { required: true })} disabled={!watch("block")}>
+      <option value="">Map Village to Block (mandal)</option>
+      {watch("block") === "Block 1" && (
+        <>
+          <option value="Village 1">Village 1</option>
+          <option value="Village 2">Village 2</option>
+        </>
+      )}
+      {watch("block") === "Block A" && (
+        <>
+          <option value="Village A1">Village A1</option>
+          <option value="Village A2">Village A2</option>
+        </>
+      )}
+    </select>
+    {errors.village && <p className="error">Village is required</p>}
+
+    {/* Zipcode */}
+    <label>Zipcode *</label>
+    <input
+      type="text"
+      {...register("zipcode", { required: true })}
+      placeholder="Map Zipcode to Village"
+      disabled={!watch("village")}
+    />
+    {errors.zipcode && <p className="error">Zipcode is required</p>}
+
+    <div className="admin-btn">
+      <button type="button" onClick={handlePrevious}>Previous</button>
+      <button type="submit">Next</button>
+    </div>
+  </div>
+)}
+           {selectedChild === "🌍 Global Area" && (
+  <div className="adminform-section">
+    <h2>Global Area</h2>
+    <label>Age *</label>
+    <input
+      type="number"
+      placeholder="Define age limit in between numbers"
+      {...register("globalAge", { required: true })}
+    />
+    {errors.globalAge && <p className="error">Age is required</p>}
+
+    <label>Education *</label>
+    <input
+      type="text"
+      placeholder="Add Education"
+      {...register("globalEducation", { required: true })}
+    />
+    {errors.globalEducation && <p className="error">Education is required</p>}
+
+    <label>Type *</label>
+    <input
+      type="text"
+      placeholder="Map Type to Education"
+      {...register("globalType", { required: true })}
+    />
+    {errors.globalType && <p className="error">Type is required</p>}
+
+    <div className="admin-btn">
+      <button type="button" onClick={handlePrevious}>Previous</button>
+      <button type="submit">Next</button>
+    </div>
+  </div>
+)}
+
+{selectedChild === "🌱 Crop Settings" && (
+  <div className="admin-config-section">
+    <h2>Crop Settings</h2>
+
+    <label>Crop Name (Feature) *</label>
+    <input
+      type="text"
+      placeholder="Add Crop Feature (108 Crop upload)"
+      {...register("cropName", { required: true })}
+    />
+    {errors.cropName && <p className="error-message">Crop Name is required</p>}
+
+    <label>Crop Type (Variety) *</label>
+    <input
+      type="text"
+      placeholder="Map Variety to Crop Feature"
+      {...register("cropType", { required: true })}
+    />
+    {errors.cropType && <p className="error-message">Crop Type is required</p>}
+
+    <div className="admin-btn">
+      <button type="button" onClick={handlePrevious}>Previous</button>
+      <button type="submit">Next</button>
+    </div>
+  </div>
+)}
+
           </form>
         </FormProvider>
         {/* Right side image */}

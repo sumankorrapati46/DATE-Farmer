@@ -79,7 +79,7 @@
   }
   
   /* Main content area */
-  .main-content {
+  .viewmain-content{
     flex: 1;
     padding: 24px;
     overflow-y: auto;

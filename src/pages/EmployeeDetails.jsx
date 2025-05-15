@@ -526,10 +526,7 @@ useEffect(() => {
     </div>
   </div>
 )}
-
-
-            {/* TODO: Add Steps 2 - 6 here */}
-
+ 
             <div className="employee-btn">
               {currentStep === 0 ? (
                 <button

@@ -1,21 +1,24 @@
+// src/api/apiService.js
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080';
+const API = axios.create({
+  baseURL: 'http://localhost:8080/api',
+});
 
-export const registerUser = (userData) => {
-  return axios.post(`${API_BASE_URL}/auth/register`, userData);
-};
+// ✅ Automatically attach JWT token to each request
+API.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
-// Example login API added user
-export const loginUser = (credentials) => {
-  return axios.post(`${API_BASE_URL}/auth/login`, credentials);
-};
+// POST: Register user
+export const registerUser = (userData) => API.post('/auth/register', userData);
 
-// Fetch profile (secured endpoint)
-export const getUserProfile = (token) => {
-  return axios.get(`${API_BASE_URL}/user/profile`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-};
+// POST: Login user
+export const loginUser = (credentials) => API.post('/auth/login', credentials);
+
+// GET: Fetch user profile
+export const getUserProfile = () => API.get('/user/profile');

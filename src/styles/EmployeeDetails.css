@@ -8,8 +8,7 @@ body {
     display: flex;
     flex-direction: column;
   }
-  
-  /* Header Styles */
+   
   .employeetop-bar {
     display: flex;
     justify-content: space-between;
@@ -55,17 +54,11 @@ body {
     color: #fff;
     padding: 0.5rem 1rem;
     margin: 0.3rem;
-    background-color: #3d9970;
     border-radius: 5px;
     transition: all 0.2s ease;
   }
   
-  .employeenav-item.active {
-    background-color: #fff;
-    color: #2c6e49;
-    font-weight: bold;
-    border: 2px solid #3d9970;
-  }
+ 
   
   /* Main Content */
   .main-content {

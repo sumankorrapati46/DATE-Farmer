@@ -21,7 +21,7 @@ const stepSchemas = [
   .required("Nationality is required")
   .transform((value) => (value?.value ? value.value : value))
   .test("is-string", "Nationality must be a string", (value) => typeof value === "string"),
-    dob: yup.string().required("Date of Birth is required")
+    dateofBirth: yup.string().required("Date of Birth is required")
       .test("valid-format", "Enter date as DD/MM/YYYY", (value) => {
         const parsed = parse(value, "dd/MM/yyyy", new Date());
         return isValid(parsed);
@@ -32,7 +32,7 @@ const stepSchemas = [
         const age = differenceInYears(new Date(), parsed);
         return age >= 18 && age <= 90;
       }),
-    fatherName: yup.string().required("Father Name is required"),
+    fatherName: yup.string(),
     alternativeNumber: yup.string()
       .nullable()
       .notRequired()
@@ -43,7 +43,7 @@ const stepSchemas = [
       .notRequired()
       .matches(/^\d{10}$/, "Enter a valid 10-digit contact number")
       .transform((value, originalValue) => (originalValue.trim() === "" ? null : value)),
-    alternativeType: yup.string().required("Alternative type is required").oneOf(["Father", "Mother", "Brother", "Sister", "Son", "Daughter", "Spouse", "Other"], "Select a valid alternative type"),
+    alternativeType: yup.string(),
   }),
   // Add other step schemas
   // Step 2: Address
@@ -60,20 +60,20 @@ const stepSchemas = [
 
   // Step 3: Professional Information
   yup.object().shape({
-    education: yup.string().required("Education is required"),
-    experience: yup.string().required("Experience is required"),
+    education: yup.string(),
+    experience: yup.string(),
   }),
 
   // Step 4: Current Crop
   yup.object().shape({
-    surveyNumber: yup.string().required("Survey Number is required"),
-    totalLandHolding: yup.string().required("Total Land Holding is required"),
-    geoTag: yup.string().required("Geo-tag is required"),
-    selectCrop: yup.string().required("Crop selection is required"),
-    netIncome: yup.string().required("Net Income is required"),
+    surveyNumber: yup.string(),
+    totalLandHolding: yup.string(),
+    geoTag: yup.string(),
+    selectCrop: yup.string(),
+    netIncome: yup.string(),
     soilTest: yup
         .string()
-        .required("Soil Test is required")
+        .notRequired()
         .oneOf(["Yes", "No"], "Please select Yes or No"),
         
       soilTestCertificate: yup
@@ -90,36 +90,36 @@ const stepSchemas = [
         }),
       }),
         yup.object().shape({
-          surveyNumber: yup.string().required("Survey Number is required"),
-          geoTag: yup.string().required("Geo-tag is required"),
-          cropType: yup.string().required("Crop Type is required"),
-          soilTest: yup.string().required("Soil Test selection is required"),
-          totalLandHolding: yup.string().required("Total Land Holding is required"),
-          netIncome: yup.string().required("Net Income is required"),
-          soilTestCertificate: yup.mixed().required("Soil Test Certificate is required"),
+          surveyNumber: yup.string(),
+          geoTag: yup.string(),
+          cropType: yup.string(),
+          soilTest: yup.string(),
+          totalLandHolding: yup.string(),
+          netIncome: yup.string(),
+          soilTestCertificate: yup.mixed(),
         }),
         yup.object().shape({
-          waterSource: yup.string().required("Water Source is required"),
-          borewellDischarge: yup.string().required("Borewell-wise Discharge is required"),
-          summerDischarge: yup.string().required("Discharge during summer months is required"),
-          borewellLocation: yup.string().required("Borewell Location is required"),
+          waterSource: yup.string(),
+          borewellDischarge: yup.string(),
+          summerDischarge: yup.string(),
+          borewellLocation: yup.string(),
         }),
 
         yup.object().shape({
-          bankName: yup.string().required("Bank Name is required"),
+          bankName: yup.string(),
         
           accountNumber: yup.string()
             .matches(/^\d{9,18}$/, "Account Number must be 9-18 digits")
-            .required("Account Number is required"),
+            ,
         
-          branchName: yup.string().required("Branch Name is required"),
+          branchName: yup.string(),
         
           ifscCode: yup.string()
             .matches(/^[A-Z]{4}0[A-Z0-9]{6}$/, "Enter a valid IFSC Code")
-            .required("IFSC Code is required"),
+            ,
         
           passbookFile: yup.mixed()
-            .required("Passbook file is required")
+            
             .test("fileSize", "File is too large", (value) => {
               return value && value.size <= 5 * 1024 * 1024; 
             })
@@ -353,9 +353,9 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
                   <p className="error">{errors.nationality?.message}</p>
   
                   <label>Date of Birth (DD/MM/YYYY) <span className="required">*</span>
-                    <input type="text" {...register("dob")} placeholder="DD/MM/YYYY" />
+                    <input type="text" {...register("dateofBirth")} placeholder="DD/MM/YYYY" />
                   </label>
-                  <p className="error">{errors.dob?.message}</p>
+                  <p className="error">{errors.dateofBirth?.message}</p>
   
                   <label>Father Name <span className="optional">(Optional)</span>
                     <input type="text" {...register("fatherName")} />

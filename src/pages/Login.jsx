@@ -8,6 +8,8 @@ import "../styles/Login.css"; // Add your styles
 import background from "../assets/background-image.png";
 import logo from "../assets/rightlogo.png";
 import illustration from "../assets/illustration.png"; // Your image
+import { loginUser } from "../api/apiService";
+import { useNavigate } from "react-router-dom";
  
 // Validation Schema
 const schema = yup.object().shape({
@@ -24,19 +26,20 @@ const Login= () => {
   } = useForm({
     resolver: yupResolver(schema),
   });
- 
+  const navigate = useNavigate();
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post("http://localhost:8080/api/auth/login", data);
-      alert("Login Successful!");
-      console.log(response.data);
-      if (response.success) {
-        reset();
+      const response = await loginUser(data);
+      if (response.data.token) {
+        localStorage.setItem("token", response.data.token);
+        alert("Login Successful!");
+        navigate("/profile"); // or /dashboard
+      } else {
+        alert("Login failed: no token received");
       }
- 
     } catch (error) {
-      alert("Login Failed!");
-      console.error(error);
+      console.error("Login error:", error.response?.data || error.message);
+      alert("Login failed: invalid credentials");
     }
   };
  
@@ -62,7 +65,7 @@ const Login= () => {
               </div>
             </div>
  
-            <button type="submit" className="login-btn"><Link to="/formerdetails">Login</Link></button>
+            <button type="submit" className="login-btn"><Link to="/">Login</Link></button>
             <div className="form-links">
               <a href="/forgot-password">Forgot your password?</a>
               <a href="/forgot-username">Forgot your ID?</a>

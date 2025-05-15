@@ -56,7 +56,8 @@ function Layout({ children, currentStep = 0, onStepChange }) {
 
 function AppContent() {
   const location = useLocation();
-  const noFrameRoutes = ["/login", "/register", "/forgot-username", "/forgot-password","/view-farmer", "/admin-config", "/employee-Details" ];
+  const noFrameRoutes = ["/login", "/register", "/forgot-username", "/forgot-password",
+  "/view-farmer", "/admin-config", "/employee-details" ];
 
   if (noFrameRoutes.includes(location.pathname)) {
     return (
@@ -67,7 +68,7 @@ function AppContent() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/view-farmer" element={<FarmerView />} />
         <Route path="/admin-config" element={<RoleForm/>} />
-        <Route path="/employee-Details" element={<EmployeeDetails/>} />
+        <Route path="/employee-details" element={<EmployeeDetails/>} />
       </Routes>
     );
   }

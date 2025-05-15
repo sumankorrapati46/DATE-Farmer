@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { parse, isValid, differenceInYears } from "date-fns";
 import * as yup from "yup";
 import axios from "axios";
+import { registerUser, loginUser, getUserProfile } from "../api/apiService";
 import { Link } from "react-router-dom";
-import { registerUser } from "../api/apiService";
 import "../styles/RegistrationForm.css";
 import background from "../assets/background-image.png";
 import logo from "../assets/rightlogo.png";
@@ -13,7 +13,7 @@ import logo from "../assets/rightlogo.png";
 const schema = yup.object().shape({
   firstName: yup.string().required("First Name is required"),
   lastName: yup.string().required("Last Name is required"),
-  dob: yup.string().required("Date of Birth is required")
+  dateofBirth: yup.string().required("Date of Birth is required")
         .test("valid-format", "Enter date as DD/MM/YYYY", (value) => {
           const parsed = parse(value, "dd/MM/yyyy", new Date());
           return isValid(parsed);
@@ -30,7 +30,7 @@ const schema = yup.object().shape({
   pinCode: yup.string().matches(/^\d{6}$/, "Enter a valid 6-digit Pin Code").required("Pin Code is required"),
   timeZone: yup.string().required("Time Zone is required"),
   email: yup.string().email("Enter a valid email").required("Email is required"),
-  phone: yup.string().matches(/^\d{10}$/, "Enter a valid 10-digit phone number").required("Phone number is required"),
+  phoneNumber: yup.string().matches(/^\d{10}$/, "Enter a valid 10-digit phone number").required("Phone number is required"),
   password: yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
   confirmPassword: yup.string().oneOf([yup.ref("password")], "Passwords must match").required("Confirm Password is required"),
 });
@@ -39,34 +39,32 @@ const RegistrationForm = () => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
   });
-
+  
   const [loading, setLoading] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const onSubmit = async (data) => {
     try {
-      setLoading(true); // Optional: show loader/spinner
-  
-      // Simulate API delay (e.g., 2 seconds) with setTimeout
-      //await new Promise((resolve) => setTimeout(resolve, 2000));
       const response = await registerUser(data);
-      console.log("Backend response:", response.data);
 
-  
-      // After the "mock" delay, you can consider it successful
-      console.log("Mock API response:", data);
-  
-      setShowSuccessPopup(true); // Show popup after "successful" submission
+      if (response.status === 201 || response.status === 200) {
+        alert("🎉 Registration successful!");
+        setShowSuccessPopup(true); 
+        reset(); // Clear the form
+      } else {
+        alert("Registration failed. Please try again.");
+      }
     } catch (error) {
-      console.error("Error submitting form:", error);
-      alert("Submission failed. Please try again.");
-    } finally {
-      setLoading(false);
+      console.error("Registration error:", error);
+      
+      setShowSuccessPopup(true); 
     }
   };
+  
 
   
   return (
@@ -92,9 +90,9 @@ const RegistrationForm = () => {
 
               <div className="registrationform-group">
               <label>Date of Birth (DD/MM/YYYY) <span className="required">*</span>
-               <input type="text" placeholder="DD/MM/YYYY" {...register("dob")}/>
+               <input type="text" placeholder="DD/MM/YYYY" {...register("dateofBirth")}/>
               </label>
-               <p className="error">{errors.dob?.message}</p>
+               <p className="error">{errors.dateofBirth?.message}</p>
               </div>
 
               <div className="registrationform-group">
@@ -161,8 +159,8 @@ const RegistrationForm = () => {
 
               <div className="registrationform-group">
                 <label>Phone Number *</label>
-                <input type="text" {...register("phone")} />
-                <p className="error">{errors.phone?.message}</p>
+                <input type="text" {...register("phoneNumber")} />
+                <p className="error">{errors.phoneNumber?.message}</p>
               </div>
 
               <div className="registrationform-group">
@@ -182,7 +180,7 @@ const RegistrationForm = () => {
     <div className="popup-content">
       <h3>Success!</h3>
       Registration successfully completed.
-      <button onClick={() => setShowSuccessPopup(false)}>OK</button>
+      <button onClick={() => setShowSuccessPopup(false)}><Link to="/login">Ok</Link></button>
     </div>
   </div>
 )}
