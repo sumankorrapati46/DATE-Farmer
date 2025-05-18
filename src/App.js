@@ -13,6 +13,8 @@ import logo2 from "./assets/rightlogo.png";
 import RoleForm from "./pages/AdminconfigForm";
 import "./App.css"
 // updated location
+import UserProfile from "./pages/UserProfile"
+import { Navigate } from "react-router-dom";
 
 function Layout({ children, currentStep = 0, onStepChange }) {
   const steps = [
@@ -25,6 +27,7 @@ function Layout({ children, currentStep = 0, onStepChange }) {
     "🔍 Other Information",
     "📄 Documents",
   ];
+ 
 
   return (
     <div className="infologo-container">
@@ -56,6 +59,7 @@ function Layout({ children, currentStep = 0, onStepChange }) {
 
 function AppContent() {
   const location = useLocation();
+  
   const noFrameRoutes = ["/login", "/register", "/forgot-username", "/forgot-password",
   "/view-farmer", "/admin-config", "/employee-details" ];
 
@@ -69,6 +73,7 @@ function AppContent() {
         <Route path="/view-farmer" element={<FarmerView />} />
         <Route path="/admin-config" element={<RoleForm/>} />
         <Route path="/employee-details" element={<EmployeeDetails/>} />
+        <Route path="/profile" element={localStorage.getItem("token") ? <UserProfile /> : <Navigate to="/login" />}/>
       </Routes>
     );
   }

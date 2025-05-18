@@ -26,8 +26,9 @@
 .form-grid{
   display: flex;
   width: 850px;
-  height: auto;
+  height: 550px;
   gap: 10%;
+  align-items: flex-end;
 }
 
 

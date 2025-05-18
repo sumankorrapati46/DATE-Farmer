@@ -1,6 +1,7 @@
-import React, { useState } from "react"; 
+import React, { useEffect, useState } from "react"; 
 import { useForm, FormProvider, Controller } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { createFarmer, getFarmerById, updateFarmer } from "../api/apiService";
+import { Link,  useParams  } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 import { yupResolver } from '@hookform/resolvers/yup';
 import Select from 'react-select';
@@ -167,28 +168,69 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
     resolver: yupResolver(stepSchemas[currentStep]),
     mode: "onChange",
   });
- const { register, control, handleSubmit, formState: { errors }, watch, trigger, setValue } = methods;
+ const { register, control, handleSubmit,  reset, formState: { errors }, watch, trigger, setValue }  = useForm();
  const soilTestValue = watch("soilTest");
  const selectedDoc = watch("documentType");
  const navigate = useNavigate();
+ const { farmerId } = useParams(); // assumes your route is like /farmers/:farmerId
+ const isEditMode = Boolean(farmerId);
+
  const onSubmit = async (data) => {
+    const formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+      formData.append(key, value ?? '');
+    });
+
+    try {
+      if (isEditMode) {
+        await updateFarmer(farmerId, formData);
+      } else {
+        await createFarmer(formData);
+      }
+      setShowSuccessPopup(true);
+    } catch (error) {
+      console.error("Submit Error:", error);
+     alert('Form submitted successfully.');
+    }
+  };
+ 
+ const handleCreateSubmit = async (data) => {
   try {
-    setLoading(true); // Optional: show loader/spinner
-
-    // Simulate API delay (e.g., 2 seconds) with setTimeout
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    // After the "mock" delay, you can consider it successful
-    console.log("Mock API response:", data);
-
-    setShowSuccessPopup(true); // Show popup after "successful" submission
+    // Create new farmer (POST)
+    const result = await createFarmer(data);
+    console.log("Farmer Created:", result);
+    setShowSuccessPopup(true);
   } catch (error) {
-    console.error("Error submitting form:", error);
-    alert("Submission failed. Please try again.");
-  } finally {
-    setLoading(false);
+    alert("Failed to submit. Please try again.");
   }
 };
+const handleUpdateSubmit = async (data) => {
+  try {
+    // Replace with actual ID you’re editing
+    const farmerId = "123"; 
+    const result = await updateFarmer(farmerId, data);
+    console.log("Farmer Updated:", result);
+    setShowSuccessPopup(true);
+  } catch (error) {
+    alert("Update failed. Please try again.");
+  }
+};
+useEffect(() => {
+  const loadFarmer = async () => {
+    try {
+      const farmerData = await getFarmerById(farmerId); // assume farmerId comes from route
+      reset(farmerData); // from react-hook-form
+    } catch (error) {
+      console.error("Load failed", error);
+    }
+  };
+
+  if (isEditMode) {
+    loadFarmer();
+  }
+}, []);
+
+  
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [loading, setLoading] = useState(false);
   const countryOptions = [
@@ -285,7 +327,7 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
         <h2>{steps[currentStep]}</h2>
           
         <FormProvider {...methods}>
-          <form onSubmit={handleSubmit(onSubmit)} div className="farmer">
+          <form onSubmit={handleSubmit(isEditMode ? handleUpdateSubmit : handleCreateSubmit)} div className="farmer">
          
             {currentStep === 0 && (
               <div className="form-grid">
@@ -293,7 +335,11 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
                   <div className="form-group photo-group">
                     <label>Photo <span className="optional">(Optional)</span></label>
                     <div className="photo-box">
-                      {photoPreview ? <img src={photoPreview} alt="Preview" className="photo-preview" /> : <span className="photo-placeholder">No photo selected</span>}
+                     {photoPreview ? (
+          <img src={photoPreview} alt="Preview" className="photo-preview" />
+        ) : (
+          <span className="photo-placeholder">No photo selected</span>
+        )}
                     </div>
                     <input type="file" accept="image/*" onChange={handlePhotoChange} className="photo-input" />
                   </div>
@@ -749,21 +795,22 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
   </>
 )}
 
-{/* Aadhar */}
 {selectedDoc === "aadharNumber" && (
   <>
     <input
       type="text"
       placeholder="Aadhar Number"
-      className="input"
-      {...register("aadharNumber", { required: "Aadhar Number is required" })}
+      {...register("aadharNumber", {
+        required: "Aadhar Number is required"
+      })}
     />
     <p>{errors.aadharNumber?.message}</p>
 
     <input
       type="file"
-      accept="image/*,application/pdf"
-      {...register("aadharFile", { required: "Aadhar File is required" })}
+      {...register("aadharFile", {
+        required: "Aadhar File is required"
+      })}
     />
     <p>{errors.aadharFile?.message}</p>
   </>
@@ -807,7 +854,7 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
 
 </div>
            )}
-<div className="btn-group">
+          <div className="btn-group">
   {currentStep === 0 ? (
     <button
       type="button"
@@ -823,7 +870,19 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
       <button type="button" onClick={() => setCurrentStep(currentStep - 1)}>
         Previous
       </button>
-      <button type="submit">Submit</button>
+      <button
+        type="submit"
+        onClick={async () => {
+          const isValid = await trigger(); // validate last step fields
+          if (isValid) {
+            await handleSubmit(onSubmit)(); // only submit if valid
+          } else {
+            alert("Please fill all required fields before submitting.");
+          }
+        }}
+      >
+        Submit
+      </button>
     </>
   ) : (
     <>
@@ -842,22 +901,7 @@ const FarmerForm = ({ currentStep, setCurrentStep }) => {
     </>
   )}
 </div>
-{showSuccessPopup && (
-  <div className="popup">
-    <div className="popup-content">
-      <h3>Success!</h3>
-      Farmer form submitted successfully.
-      <button
-      onClick={() => {
-        setShowSuccessPopup(false); // Close the popup
-        navigate('/view-farmer');   // Navigate to the desired route
-      }}
-    >
-      OK
-    </button>
-    </div>
-  </div>
-)}
+
 
           </form>
         </FormProvider>

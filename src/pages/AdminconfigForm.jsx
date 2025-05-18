@@ -70,7 +70,13 @@ export default function AdminconfigForm() {
         { label: "🌱 Crop Settings", path: "/settings/crop-settings" },
       ],
     },
-    { label: "📌 Preferences" },
+    { label: "📌 Preferences",
+        children: [
+        { label: "🔔 Notifications" , path: "/Preferences/Notifications" },
+       
+      ],
+
+     },
     
   ];
 
@@ -122,7 +128,8 @@ export default function AdminconfigForm() {
     "📱 SMS Templates",
     "🌍 Country Settings",
     "🌍 Global Area",
-    "🌱 Crop Settings"
+    "🌱 Crop Settings",
+    "🔔 Notifications" 
   ];
   function handlePrevious() {
     const currentIndex = childOrder.indexOf(selectedChild);
@@ -479,6 +486,39 @@ export default function AdminconfigForm() {
     </div>
   </div>
 )}
+  
+        {selectedChild === "🔔 Notifications" && (
+  <div className="admin-config-section">
+    <h2>Notifications</h2>
+
+    <label>Email / SMS<span style={{ color: "red" }}>*</span></label>
+    <div className="radio-group">
+      <label>
+        <input
+          type="checkbox"
+          value="ON"
+          {...register("notificationPreference", { required: true })}
+        /> ON
+      </label>
+      <label>
+        <input
+          type="checkbox"
+          value="OFF"
+          {...register("notificationPreference", { required: true })}
+        /> OFF
+      </label>
+    </div>
+    {errors.notificationPreference && (
+      <p className="error-message">Email/SMS selection is required</p>
+    )}
+
+    <div className="admin-btn">
+      <button type="button" onClick={handlePrevious}>Previous</button>
+      <button type="submit">Next</button>
+    </div>
+  </div>
+)}
+
 
           </form>
         </FormProvider>
