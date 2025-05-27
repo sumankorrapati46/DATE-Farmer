@@ -16,11 +16,13 @@ code {
 h1, h2, h3, h4, h5, h6,
 label,
 nav, .sidebar, .topbar,
-img, svg,
+img, svg, image, 
+.photo,
 .logo,
 button,
 a,
 span,
+.space,
 div.static-text {
   user-select: none;
   cursor: default;
