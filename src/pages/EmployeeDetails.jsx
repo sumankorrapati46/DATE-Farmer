@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 import axios from "axios";
 import * as Yup from 'yup';
 import sampleImage from "../assets/tractor.png";
@@ -162,14 +163,6 @@ const addressSchema = Yup.object().shape({
     }),
   });
 
-// Fetch countries on load
-useEffect(() => {
-  axios.get("https://restcountries.com/v3.1/all").then((res) => {
-    const countryList = res.data.map((c) => c.name.common).sort();
-    setCountries(countryList);
-  });
-}, []);
-
 
 
   return (
@@ -250,7 +243,7 @@ useEffect(() => {
       <label className="label">First Name<span className="required">*</span></label>
       <input
         className="input"
-        placeholder=""
+        placeholder="First Name"
         {...register("firstName", { required: "First Name is required" })}
       />
       {errors.firstName && <p className="error">{errors.firstName.message}</p>}
@@ -278,7 +271,7 @@ useEffect(() => {
       <label className="label">Middle Name<span className="required">*</span></label>
       <input
         className="input"
-        placeholder=""
+        placeholder="Middle Name"
         {...register("middleName", { required: "Middle Name is required" })}
       />
       {errors.middleName && <p className="error">{errors.middleName.message}</p>}
@@ -302,7 +295,7 @@ useEffect(() => {
       <label className="label">Last Name<span className="required">*</span></label>
       <input
         className="input"
-        placeholder=""
+        placeholder="Last Name"
         {...register("lastName", { required: "Last Name is required" })}
       />
       {errors.lastName && <p className="error">{errors.lastName.message}</p>}
@@ -365,16 +358,20 @@ useEffect(() => {
   <div className="form-two">
     <div>
     
-  <label className="label">Select </label>
+  <label className="label" htmlFor="relation">
+    Select <span className="required">*</span>
+  </label>
   <select
+    id="relation"
     className="input"
-    {...register("relation")}>
-    <option value=""> Select </option>
+    {...register("relation", { required: "Please select a relation" })}
+  >
+    <option value="">-- Select --</option>
     <option value="do">D/O</option>
     <option value="so">S/O</option>
     <option value="wo">W/O</option>
   </select>
- 
+  {errors.relation && <p className="error">{errors.relation.message}</p>}
 </div>
 
 
@@ -382,7 +379,7 @@ useEffect(() => {
       <label className="label">Father Name</label>
       <input
         type="text"
-        placeholder=""
+        placeholder="Krishna Kumar"
         className="input"
         {...register("fatherName")}
       />
@@ -392,34 +389,27 @@ useEffect(() => {
       <label className="label">Alternative Number</label>
       <input
         type="text"
-        placeholder=""
+        placeholder="91-987xxxxxx16"
         className="input"
         {...register("altNumber")}
       />
     </div>
 
     <div>
-      <label>Alternative Type <span className="optional">(Optional)</span>
-                    <select {...register("alternativeType")}>
-                      <option value="">Select Relation</option>
-                      <option value="Father">Father</option>
-                      <option value="Mother">Mother</option>
-                      <option value="Brother">Brother</option>
-                      <option value="Sister">Sister</option>
-                      <option value="Son">Son</option>
-                      <option value="Daughter">Daughter</option>
-                      <option value="Spouse">Spouse</option>
-                      <option value="Other">Other</option>
-                    </select>
-                  </label>
-                  <p className="error">{errors.alternativeType?.message}</p>
+      <label className="label">Alternative No. Type</label>
+      <input
+        type="text"
+        placeholder="Father (Relative)"
+        className="input"
+        {...register("altNumberType")}
+      />
     </div>
   </div>
 )}
 
 {currentStep === 3 && (
         <div className="form-three">
-          <div>
+         <div>
             <label> Country <span className="required">*</span></label>
             <select {...register("address.country")} className="input">
               <option value="">Select Country</option>
@@ -467,21 +457,22 @@ useEffect(() => {
           <div>
             <label className="label">Zipcode <span className="required">*</span></label>
             <input
-               type="text"
-               className="input"
-               {...register("address.zipcode")}
-               placeholder="Enter 6-digit Zipcode"
-             />
-             <p className="error">{errors.address?.zipcode?.message}</p>
+              type="text"
+              placeholder="56xxxx"
+              className="input"
+              {...register("address.zipcode")}
+            />
+            <p className="error">{errors.address?.zipcode?.message}</p>
           </div>
         </div>
       )}
+
 
 {currentStep === 4 && (
   <div className="form-four">
     <div>
       <label className="label">Education</label>
-      <select className="input" {...register("education", { required: "Please select education details" })}>
+      <select className="input" {...register("professional.education")}>
         <option value="">Select</option>
         <option value="Primary Schooling">Primary Schooling</option>
         <option value="High School">High School</option>
@@ -490,17 +481,16 @@ useEffect(() => {
         <option value="Graduate">Graduate</option>
         <option value="Post-Graduate">Post-Graduate</option>
       </select>
-       {errors.education && <p className="error">{errors.education.message}</p>}
     </div>
 
     <div>
       <label className="label">Experience</label>
       <input
         type="text"
-        placeholder=""
+        placeholder="15 Years"
         className="input"
-        {...register("experience",{ required: "Please select a professional.experience" })} />
-         {errors.experience && <p className="error">{errors.experience.message}</p>}
+        {...register("professional.experience")}
+      />
     </div>
   </div>
 )}
@@ -511,7 +501,7 @@ useEffect(() => {
       <label className="label">Bank Name</label>
       <input
         type="text"
-        placeholder=""
+        placeholder="HDFC Bank"
         className="input"
         {...register("bank.bankName")}
       />
@@ -521,7 +511,7 @@ useEffect(() => {
       <label className="label">Account Number</label>
       <input
         type="text"
-        placeholder=""
+        placeholder="281398301653"
         className="input"
         {...register("bank.accountNumber")}
       />
@@ -531,7 +521,7 @@ useEffect(() => {
       <label className="label">Branch name</label>
       <input
         type="text"
-        placeholder=""
+        placeholder="Madhapur"
         className="input"
         {...register("bank.branchName")}
       />
@@ -541,7 +531,7 @@ useEffect(() => {
       <label className="label">IFSC Code</label>
       <input
         type="text"
-        placeholder=""
+        placeholder="HDFC0028"
         className="input"
         {...register("bank.ifscCode")}
       />
@@ -587,29 +577,29 @@ useEffect(() => {
       <label className="label">
         Role/Designation <span className="required">*</span>
       </label>
-      <select className="input"
-       {...register("portalAccess.role", {  required: "Please select a portalAccess.role"})}>
+      <select className="input" {...register("portalAccess.role", { required: true })}>
         <option value="">Select</option>
         <option value="manager">Manager</option>
         <option value="employee">Employee</option>
       </select>
-      {errors.role && <p className="error">{errors.portalAccess.message}</p>}
     </div>
 
     <div>
       <label className="label">
         Access <span className="required">*</span>
       </label>
-      <select className="input" {...register("portalAccess.status", {  required: "Please select a portalAccess.status" })}>
+      <select className="input" {...register("portalAccess.status", { required: true })}>
         <option value="">Select</option>
         <option value="active">Active</option>
         <option value="inactive">Inactive</option>
       </select>
-       {errors.status && <p className="error">{errors.portalAccess.message}</p>}
     </div>
   </div>
 )}
- 
+
+
+            {/* TODO: Add Steps 2 - 6 here */}
+
             <div className="employee-btn">
               {currentStep === 0 ? (
                 <button
