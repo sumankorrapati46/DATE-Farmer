@@ -7,12 +7,11 @@ import Register from "./pages/RegistrationForm";
 import ForgotUsername from "./pages/ForgotUserid";
 import ForgotPassword from "./pages/ForgotPassword";
 import FarmerView from "./pages/Viewfarmer"
-import EmployeeDetails from "./pages/EmployeeDetails"; 
+
 import logo1 from "./assets/leftlogo.png";
 import logo2 from "./assets/rightlogo.png";
-import RoleForm from "./pages/AdminconfigForm";
+
 import "./App.css"
-// updated location
 import UserProfile from "./pages/UserProfile"
 import { Navigate } from "react-router-dom";
 
@@ -61,7 +60,7 @@ function AppContent() {
   const location = useLocation();
   
   const noFrameRoutes = ["/login", "/register", "/forgot-username", "/forgot-password",
-  "/view-farmer", "/admin-config", "/employee-details" ];
+  "/view-farmer"  ];
 
   if (noFrameRoutes.includes(location.pathname)) {
     return (
@@ -71,8 +70,8 @@ function AppContent() {
         <Route path="/forgot-username" element={<ForgotUsername />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/view-farmer" element={<FarmerView />} />
-        <Route path="/admin-config" element={<RoleForm/>} />
-        <Route path="/employee-details" element={<EmployeeDetails/>} />
+        
+        
         <Route path="/profile" element={localStorage.getItem("token") ? <UserProfile /> : <Navigate to="/login" />}/>
       </Routes>
     );
