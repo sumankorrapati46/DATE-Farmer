@@ -1,33 +1,65 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
-
-import background from "../assets/background-image.png"; // replace with your actual image
+import axios from "axios";
+import background from "../assets/background-image.png";
 import logo from "../assets/rightlogo.png";
 import illustration from "../assets/illustration1.png";
-import "../styles/ForgotPassword.css"; // CSS we'll create below
+import "../styles/ForgotPassword.css";
 
+// ✅ Schema validation
 const schema = Yup.object().shape({
   userInput: Yup.string()
-    .required("Email/Phone/ID is required")
-    .test("valid", "Enter a valid Email, Phone or ID", (value) => {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const phoneRegex = /^[0-9]{10}$/;
-      return emailRegex.test(value) || phoneRegex.test(value) || value.length >= 6;
-    }),
+    .required("Email / Phone / ID is required")
+    .test(
+      "valid-userInput",
+      "Enter a valid Email (with '@' and '.'), 10-digit Phone number, or ID (min 6 characters)",
+      function (value) {
+        if (!value) return false;
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const phoneRegex = /^[0-9]{10}$/;
+
+        const isEmail = emailRegex.test(value);
+        const isPhone = phoneRegex.test(value);
+        const isId = !isEmail && !isPhone && value.length >= 6;
+
+        return isEmail || isPhone || isId;
+      }
+    ),
 });
 
 const ForgotPassword = () => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm({ resolver: yupResolver(schema) });
 
-  const onSubmit = (data) => {
-    console.log(data);
-    alert("Reset link has been sent if the ID is found in our records.");
+  const [showPopup, setShowPopup] = useState(false);
+  const [target, setTarget] = useState("");
+  
+const onSubmit = async (data) => {
+  try {
+    const response = await axios.post("https://your-api-url.com/api/auth/forgot-password", {
+      userInput: data.userInput,
+    });
+
+    // Optional: handle success or message from server
+    setTarget(data.userInput);
+    setShowPopup(true);
+  } catch (error) {
+    console.error("Error sending reset request:", error);
+    alert("Failed to send reset link. Please try again.");
+  }
+};
+
+
+  const handlePopupClose = () => {
+    setShowPopup(false);
+    reset(); // ✅ Reset the form
   };
 
   return (
@@ -57,8 +89,22 @@ const ForgotPassword = () => {
       <div className="ForgotPassword-image">
         <img src={illustration} alt="Illustration" />
       </div>
+
+      {/* ✅ Success Popup */}
+      {showPopup && (
+        <div className="popup">
+          <div className="popup-content">
+            <h3>Success!</h3>
+            <p>
+              A reset link has been sent to <strong>{target}</strong> if it is found in our records.
+            </p>
+            <button onClick={handlePopupClose}>OK</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default ForgotPassword;
+

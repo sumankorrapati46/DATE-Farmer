@@ -7,7 +7,7 @@ import Register from "./pages/RegistrationForm";
 import ForgotUsername from "./pages/ForgotUserid";
 import ForgotPassword from "./pages/ForgotPassword";
 import FarmerView from "./pages/Viewfarmer"
-
+import Dashboard from "./pages/Dashboard"
 import logo1 from "./assets/leftlogo.png";
 import logo2 from "./assets/rightlogo.png";
 
@@ -60,7 +60,7 @@ function AppContent() {
   const location = useLocation();
   
   const noFrameRoutes = ["/login", "/register", "/forgot-username", "/forgot-password",
-  "/view-farmer"  ];
+  "/view-farmer" , "/dashboard" ];
 
   if (noFrameRoutes.includes(location.pathname)) {
     return (
@@ -70,7 +70,7 @@ function AppContent() {
         <Route path="/forgot-username" element={<ForgotUsername />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/view-farmer" element={<FarmerView />} />
-        
+        <Route path="/dashboard" element={<Dashboard />} />
         
         <Route path="/profile" element={localStorage.getItem("token") ? <UserProfile /> : <Navigate to="/login" />}/>
       </Routes>
