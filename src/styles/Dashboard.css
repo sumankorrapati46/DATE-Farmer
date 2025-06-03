@@ -1,0 +1,106 @@
+.dashboard-container {
+  font-family: Arial, sans-serif;
+}
+
+.dash-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+}
+
+.infologo-left {
+  height: 60px;
+}
+
+.infologo-right {
+  height: 60px;
+}
+
+.dashboard-body {
+  display: flex;
+}
+
+.dashboard-sidebar {
+  background-color: #3d6b42;
+  width: 240px;
+  height: calc(60vh - 80px);
+  padding-top: 20px;
+  color: white;
+}
+.dashboard-grid{
+    display: flex;
+}
+
+.sidebar-menu {
+  list-style-type: none;
+  padding: 0;
+}
+
+.sidebar-menu li {
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.sidebar-menu li.active,
+.sidebar-menu li:hover {
+  background-color: #d2a854;
+  color: white;
+}
+
+.dashboard-main {
+  flex: 1;
+  padding: 20px;
+  background-color: #fff;
+}
+
+.banner-image {
+  background-image: url("../assets/banner.jpg"); /* adjust path */
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  margin-bottom: 20px;
+  border-radius: 5px;
+}
+
+.dashboard-title {
+  font-size: 24px;
+  font-weight: bold;
+  color: #4a7b4e;
+  margin-bottom: 20px;
+}
+
+.card-wrapper {
+  display: flex;
+  gap: 100px;
+  justify-content: center;
+}
+
+.card {
+  width: 200px;
+  border: 1px solid #ccc;
+  padding: 15px;
+  border-radius: 5px;
+  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.card:hover {
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.card-title.blue {
+  color: #007bff;
+  margin: 0 0 10px;
+}
+
+.card-icon {
+  margin-bottom: 10px;
+}
+
+.percentage {
+  color: #555;
+  font-size: 14px;
+}

@@ -27,21 +27,16 @@ const Login= () => {
     resolver: yupResolver(schema),
   });
   const navigate = useNavigate();
-  const onSubmit = async (data) => {
-    try {
-      const response = await loginUser(data);
-      if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
+   const onSubmit = async (data) => {
+      try {
+        const response = await axios.post("http://localhost:8080/api/auth/login", data);
         alert("Login Successful!");
-        navigate("/profile"); // or /dashboard
-      } else {
-        alert("Login failed: no token received");
+        console.log(response.data);
+      } catch (error) {
+        alert("Login Failed!");
+        console.error(error);
       }
-    } catch (error) {
-      console.error("Login error:", error.response?.data || error.message);
-      alert("Login failed: invalid credentials");
-    }
-  };
+    };
  
   return (
     <div className="login-container" style={{ backgroundImage: `url(${background})` }}>
