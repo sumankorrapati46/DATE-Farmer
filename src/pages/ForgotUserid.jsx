@@ -106,7 +106,7 @@ const ForgotUserId = () => {
           <div className="popup-content">
             <h3 className="text-lg font-bold mb-2">Success!</h3>
             <p className="mb-4">
-              Your User ID has been sent to <strong>{target}</strong> if it exists in our records.
+              Your User ID has been sent to <strong>{target}</strong>
             </p>
             <button
               onClick={handlePopupClose}

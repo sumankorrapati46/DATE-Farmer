@@ -98,7 +98,7 @@ const ForgotPassword = () => {
           <div className="popup-content">
             <h3>Success!</h3>
             <p>
-              A reset link has been sent to <strong>{target}</strong> if it is found in our records.
+              A reset link has been sent to <strong>{target}</strong>
             </p>
             <button onClick={handlePopupClose}>OK</button>
           </div>
