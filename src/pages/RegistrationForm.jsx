@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -15,7 +15,17 @@ const schema = yup.object().shape({
   dateOfBirth: yup
     .string()
     .required("Date of Birth is required")
-    .matches(/^\d{4}-\d{2}-\d{2}$/, "Enter date as YYYY-MM-DD"),
+    .test("age-range", "Age must be between 18 and 90 years", function (value) {
+      if (!value) return false;
+      const dob = new Date(value);
+      const today = new Date();
+
+      const ageDifMs = today - dob;
+      const ageDate = new Date(ageDifMs);
+      const age = Math.abs(ageDate.getUTCFullYear() - 1970);
+
+      return age >= 18 && age <= 90;
+    }),
   gender: yup.string().required("Gender is required"),
   country: yup.string().required("Country is required"),
   state: yup.string().required("State is required"),
@@ -118,7 +128,7 @@ const RegistrationForm = () => {
               </div>
  
               <div className="registrationform-group">
-                <label>Date of Birth (YYYY-MM-DD) <span className="required">*</span></label>
+                <label>Date of Birth  <span className="required">*</span></label>
                 <input
                   type="text"
                   placeholder="YYYY-MM-DD"
@@ -187,23 +197,20 @@ const RegistrationForm = () => {
               </div>
  
               <div className="registrationform-group">
-              {states.length > 0 && (
-<>
-<label htmlFor="state-select">Select a state:</label>
-<select
-                    id="state-select"
-                    {...register("state")}
-                    value={selectedState}
-                    onChange={(e) => setValue("state", e.target.value)}
->
-                    {states.map((state) => (
-<option key={state.id} value={state.name}>
-                        {state.name}
-</option>
-                    ))}
-</select>
-</>
-              )}
+               <label htmlFor="state-select">Select a state:</label>
+  <select
+    id="state-select"
+    {...register("state")}
+    value={selectedState}
+    onChange={(e) => setValue("state", e.target.value)}
+  >
+    <option value="">Select a state</option>
+    {states.map((state) => (
+      <option key={state.id} value={state.name}>
+        {state.name}
+      </option>
+    ))}
+  </select>
                 <p className="error">{errors.state?.message}</p>
               </div>
  
@@ -241,3 +248,5 @@ const RegistrationForm = () => {
 };
  
 export default RegistrationForm;
+ 
+ 
