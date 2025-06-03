@@ -73,7 +73,8 @@
 
 .card-wrapper {
   display: flex;
-  gap: 20px;
+  gap: 100px;
+  justify-content: center;
 }
 
 .card {

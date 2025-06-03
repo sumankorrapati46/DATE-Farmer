@@ -7,7 +7,7 @@ import background from "../assets/background-image.png";
 import logo from "../assets/rightlogo.png";
 import illustration from "../assets/illustration1.png";
 import "../styles/ForgotPassword.css";
-
+ 
 // ✅ Schema validation
 const schema = Yup.object().shape({
   userInput: Yup.string()
@@ -17,19 +17,19 @@ const schema = Yup.object().shape({
       "Enter a valid Email (with '@' and '.'), 10-digit Phone number, or ID (min 6 characters)",
       function (value) {
         if (!value) return false;
-
+ 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const phoneRegex = /^[0-9]{10}$/;
-
+ 
         const isEmail = emailRegex.test(value);
         const isPhone = phoneRegex.test(value);
         const isId = !isEmail && !isPhone && value.length >= 6;
-
+ 
         return isEmail || isPhone || isId;
       }
     ),
 });
-
+ 
 const ForgotPassword = () => {
   const {
     register,
@@ -37,41 +37,43 @@ const ForgotPassword = () => {
     reset,
     formState: { errors },
   } = useForm({ resolver: yupResolver(schema) });
-
+ 
   const [showPopup, setShowPopup] = useState(false);
   const [target, setTarget] = useState("");
-  
-const onSubmit = async (data) => {
-  try {
-    const response = await axios.post("https://your-api-url.com/api/auth/forgot-password", {
-      userInput: data.userInput,
-    });
-
-    // Optional: handle success or message from server
-    setTarget(data.userInput);
-    setShowPopup(true);
-  } catch (error) {
-    console.error("Error sending reset request:", error);
-    alert("Failed to send reset link. Please try again.");
-  }
-};
-
-
+ 
+  const onSubmit = async (data) => {
+    try {
+      const response = await axios.post("http://localhost:8080/api/auth/forgot-password", {
+        emailOrPhone: data.userInput
+      }, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+ 
+      // Optional: handle success or message from server
+      setTarget(data.userInput);
+      setShowPopup(true);
+    } catch (error) {
+      console.error("Error sending reset request:", error);
+      alert("Failed to send reset link. Please try again.");
+    }
+  };
+ 
+ 
   const handlePopupClose = () => {
     setShowPopup(false);
     reset(); // ✅ Reset the form
   };
-
+ 
   return (
     <div className="ForgotPassword-page" style={{ backgroundImage: `url(${background})` }}>
       <img src={logo} alt="Logo" className="ForgotPassword-logo" />
-
+ 
       <div className="ForgotPassword-container">
         <h2>Forgot Password</h2>
         <p>
           Enter your email address, click “Reset password”, and we’ll send you a link to reset your password.
         </p>
-
+ 
         <form onSubmit={handleSubmit(onSubmit)}>
           <label>
             Email/Phone/ID <span className="required">*</span>
@@ -81,15 +83,15 @@ const onSubmit = async (data) => {
             placeholder="Enter your Email or Phone or ID"
           />
           {errors.userInput && <p className="error">{errors.userInput.message}</p>}
-
+ 
           <button type="submit">Reset password</button>
         </form>
       </div>
-
+ 
       <div className="ForgotPassword-image">
         <img src={illustration} alt="Illustration" />
       </div>
-
+ 
       {/* ✅ Success Popup */}
       {showPopup && (
         <div className="popup">
@@ -105,6 +107,5 @@ const onSubmit = async (data) => {
     </div>
   );
 };
-
+ 
 export default ForgotPassword;
-

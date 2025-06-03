@@ -1,36 +1,21 @@
-// RegistrationForm.jsx
 import React, { useEffect, useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import axios from "axios";
-import { format, parse, isValid, differenceInYears } from "date-fns";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { FaCalendarAlt } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import "../styles/RegistrationForm.css";
 import background from "../assets/background-image.png";
 import logo from "../assets/rightlogo.png";
-
-const dateFormat = "dd-MM-yyyy";
-
+ 
+// Updated Yup schema for yyyy-MM-dd format
 const schema = yup.object().shape({
   firstName: yup.string().required("First Name is required"),
   lastName: yup.string().required("Last Name is required"),
-  dateofBirth: yup
+  dateOfBirth: yup
     .string()
     .required("Date of Birth is required")
-    .test("valid-format", "Enter date as DD-MM-YYYY", (value) => {
-      const parsed = parse(value, dateFormat, new Date());
-      return isValid(parsed);
-    })
-    .test("age-limit", "Age must be between 18 and 90 years", (value) => {
-      const parsed = parse(value, dateFormat, new Date());
-      if (!isValid(parsed)) return false;
-      const age = differenceInYears(new Date(), parsed);
-      return age >= 18 && age <= 90;
-    }),
+    .matches(/^\d{4}-\d{2}-\d{2}$/, "Enter date as YYYY-MM-DD"),
   gender: yup.string().required("Gender is required"),
   country: yup.string().required("Country is required"),
   state: yup.string().required("State is required"),
@@ -39,333 +24,220 @@ const schema = yup.object().shape({
     .matches(/^\d{6}$/, "Enter a valid 6-digit Pin Code")
     .required("Pin Code is required"),
   timeZone: yup.string().required("Time Zone is required"),
-  email: yup
-    .string()
-    .required("Email is required")
-    .matches(/^[^@]+@[^@]+\.[^@]+$/, "Email must include '@' and '.' and be valid"),
+  email: yup.string()
+  .required("Email is required")
+  .matches(/^[^@]+@[^@]+\.[^@]+$/, "Email must include '@' and '.' and be valid"),
   phoneNumber: yup
     .string()
     .matches(/^\d{10}$/, "Enter a valid 10-digit phone number")
     .required("Phone number is required"),
-  password: yup
-    .string()
-    .required("Password is required")
-    .min(6, "Password must be at least 6 characters")
-    .matches(/[A-Z]/, "Must contain at least one uppercase letter")
-    .matches(/\d/, "Must contain at least one number")
-    .matches(/@/, "Must include an '@'"),
+  password: yup.string()
+  .required("Password is required")
+  .min(6, "Password must be at least 6 characters")
+  .matches(/[A-Z]/, "Must contain at least one uppercase letter")
+  .matches(/\d/, "Must contain at least one number")
+  .matches(/@/, "Must include an '@'"),
   confirmPassword: yup
     .string()
-    .required("Confirm Password is required")
-    .oneOf([yup.ref("password")], "Passwords must match"),
+    .oneOf([yup.ref("password")], "Passwords must match")
+    .required("Confirm Password is required"),
 });
-
+ 
 const RegistrationForm = () => {
   const {
     register,
     handleSubmit,
-    control,
     reset,
     watch,
     setValue,
-    setError,
     formState: { errors },
-  } = useForm({ resolver: yupResolver(schema) });
-
-  const [loading, setLoading] = useState(false);
-  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
-  const selectedPinCode = watch("pinCode");
-  const email = watch("email");
-  const [emailErrorPopup, setEmailErrorPopup] = useState(false);
-
-  const selectedCountry = watch("country");
-  const selectedState = watch("state");
-
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
   const [countries, setCountries] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState("");
   const [states, setStates] = useState([]);
-  const [pincodes, setPincodes] = useState([]);
+  const selectedState = watch("state");
+  // Fetch countries
   useEffect(() => {
-  const delayDebounce = setTimeout(() => {
-    if (email && /^[^@]+@[^@]+\.[^@]+$/.test(email)) {
-      axios.get(`/api/auth/check-email?email=${email}`)
-        .then(res => {
-          if (res.data.exists) {
-            setEmailErrorPopup(true);
-            setError("email", {
-              type: "manual",
-              message: "This email is already in use"
-            });
-          } else {
-            setEmailErrorPopup(false);
-          }
-        })
-        .catch(err => console.error("Email check error", err));
-    }
-  }, 600);
-
-  return () => clearTimeout(delayDebounce);
-}, [email, setError]);
-
-  useEffect(() => {
-    axios.get("https://restcountries.com/v3.1/all")
-      .then(response => {
-        const countryNames = response.data
-          .map(country => country.name?.common)
-          .filter(Boolean)
-          .sort();
-        setCountries(countryNames);
+    axios
+      .get("http://localhost:8080/api/auth/countries")
+      .then((response) => {
+        setCountries(response.data);
       })
-      .catch(error => console.error("Error fetching countries:", error));
+      .catch((error) => console.error("Error fetching countries:", error));
   }, []);
-
+  // Fetch states when country changes
   useEffect(() => {
     if (selectedCountry) {
-      axios.get(`/api/states?countryId=${selectedCountry}`)
-        .then(res => setStates(res.data))
-        .catch(err => console.error("State fetch error", err));
+      axios
+        .get(`http://localhost:8080/api/auth/states/${selectedCountry}`)
+        .then((response) => {
+          setStates(response.data);
+        })
+        .catch((error) => console.error("Error fetching states:", error));
     } else {
       setStates([]);
-      setPincodes([]);
     }
   }, [selectedCountry]);
-
-  useEffect(() => {
-    if (selectedState) {
-      axios.get(`/api/pincodes?stateId=${selectedState}`)
-        .then(res => setPincodes(res.data))
-        .catch(err => console.error("Pincode fetch error", err));
-    } else {
-      setPincodes([]);
-    }
-  }, [selectedState]);
-
-  // ✅ This was outside, now placed correctly inside
-  useEffect(() => {
-    if (selectedPinCode) {
-      axios.get(`/api/address-info?pincode=${selectedPinCode}`)
-        .then(res => {
-          if (res.data) {
-            reset({
-              ...watch(),
-              state: res.data.state,
-              country: res.data.country
-            });
-          }
-        })
-        .catch(err => console.error("Pincode fetch error", err));
-    }
-  }, [selectedPinCode]);
-
-  useEffect(() => {
-    const subscription = watch((value, { name }) => {
-      if (name === "pinCode" && value.pinCode.length === 6) {
-        axios.get(`/api/location?pincode=${value.pinCode}`)
-          .then(res => {
-            const { country, state } = res.data;
-            setValue("country", country);
-            setValue("state", state);
-          })
-          .catch(err => console.error("Location fetch error", err));
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [watch, setValue]);
-
   const onSubmit = async (data) => {
-  setLoading(true);
-  try {
-    const checkRes = await axios.get(`/api/auth/check-email?email=${data.email}`);
-    if (checkRes.data.exists) {
-      setError("email", { type: "manual", message: "Email is already in use" });
-      setLoading(false);
-      return;
+    try {
+      const response = await axios.post("http://localhost:8080/api/auth/register", data);
+      alert("Registration Successful!");
+      console.log(response.data);
+      reset(); // reset form on successful registration
+    } catch (error) {
+      alert("Registration Failed!");
+      console.error(error);
     }
-
-    const response = await axios.post("/api/auth/register", data);
-
-    // ⬇️ Send confirmation email
-    await axios.post("/api/auth/send-confirmation-email", { email: data.email });
-
-    setShowSuccessPopup(true);
-    reset();
-  } catch (error) {
-    alert("Registration failed!");
-    console.error(error);
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
+ 
   return (
-    <form className="registration-page" onSubmit={handleSubmit(onSubmit)} style={{ backgroundImage: `url(${background})` }}>
+    <form
+      className="registration-page"
+      onSubmit={handleSubmit(onSubmit)}
+      style={{ backgroundImage: `url(${background})` }}
+    >
       <img src={logo} alt="Logo" className="registration-logo" />
-
+ 
       <div className="registration-form-title">
         <h1>Let's get you started</h1>
         <h3>Enter the details to get going</h3>
       </div>
-
+ 
       <div className="registration-form-container">
         <h2>Registration Form</h2>
-
-        <div className="registration-grid">
-          <div className="form-column">
-            <div className="registrationform-group">
-              <label>First Name *</label>
-              <input {...register("firstName")} />
-              <p className="error">{errors.firstName?.message}</p>
-            </div>
-
-            <div className="registrationform-group">
-              <label>
-    Date of Birth <span className="required">*</span>
-  </label>
-
-  <Controller
-  name="dateofBirth"
-  control={control}
-  rules={{ required: "Date of Birth is required" }}
-  render={({ field }) => (
-    <DatePicker
-      placeholderText="Select date"
-      dateFormat="dd-MM-yyyy"
-      selected={
-        field.value
-          ? typeof field.value === "string"
-            ? parse(field.value, "dd-MM-yyyy", new Date())
-            : field.value
-          : null
-      }
-      onChange={(date) => {
-        if (date) {
-          const formatted = format(date, "dd-MM-yyyy");
-          field.onChange(formatted);
-        } else {
-          field.onChange("");
-        }
-      }}
-      maxDate={new Date()}
-      showYearDropdown
-      scrollableYearDropdown
-      yearDropdownItemNumber={100}
-    />
-  )}
-/>
-
-               <p className="error">{errors.dateofBirth?.message}</p>
+ 
+        <div className="registration-form">
+          <div className="registration-grid">
+            <div className="form-column">
+              <div className="registrationform-group">
+                <label>First Name <span className="required">*</span></label>
+                <input type="text" {...register("firstName")} />
+                <p className="error">{errors.firstName?.message}</p>
               </div>
-
-            <div className="registrationform-group">
-              <label>Country/Region *</label>
-              <select {...register("country")}> 
-                <option value="">Select Country</option>
-                {countries.map((c, i) => <option key={i} value={c}>{c}</option>)}
-              </select>
-              <p className="error">{errors.country?.message}</p>
+ 
+              <div className="registrationform-group">
+                <label>Date of Birth (YYYY-MM-DD) <span className="required">*</span></label>
+                <input
+                  type="text"
+                  placeholder="YYYY-MM-DD"
+                  {...register("dateOfBirth")}
+                />
+                <p className="error">{errors.dateOfBirth?.message}</p>
+              </div>
+ 
+              <div className="registrationform-group">
+              <label htmlFor="country-select">Select a country:</label>
+<select
+                id="country-select"
+                {...register("country")}
+                value={selectedCountry}
+                onChange={(e) => {
+                  const selected = e.target.value;
+                  setSelectedCountry(selected);
+                  setValue("country", selected);
+                }}
+>
+<option value="">Select a country</option>
+                {countries.map((country) => (
+<option key={country.id} value={country.iso2}>
+                    {country.name}
+</option>
+                ))}
+</select>
+                <p className="error">{errors.country?.message}</p>
+              </div>
+ 
+              <div className="registrationform-group">
+                <label>Pin Code *</label>
+                <input type="text" {...register("pinCode")} />
+                <p className="error">{errors.pinCode?.message}</p>
+              </div>
+ 
+              <div className="registrationform-group">
+                <label>Email Address *</label>
+                <input type="email" {...register("email")} />
+                <p className="error">{errors.email?.message}</p>
+              </div>
+ 
+              <div className="registrationform-group">
+                <label>Create Password *</label>
+                <input type="password" {...register("password")} />
+                <p className="error">{errors.password?.message}</p>
+              </div>
             </div>
-
-            <div className="registrationform-group">
-              <label>Pin Code *</label>
-              <input {...register("pinCode")} />
-              <p className="error">{errors.pinCode?.message}</p>
-            </div>
-
-            <div className="registrationform-group">
-              <label>Email Address *</label>
-              <input type="email" {...register("email")} />
-              <p className="error">{errors.email?.message}</p>
-            </div>
-
-            <div className="registrationform-group">
-              <label>Create Password *</label>
-              <input type="password" {...register("password")} />
-              <p className="error">{errors.password?.message}</p>
-            </div>
-          </div>
-
-          <div className="form-column">
-            <div className="registrationform-group">
-              <label>Last Name *</label>
-              <input {...register("lastName")} />
-              <p className="error">{errors.lastName?.message}</p>
-            </div>
-
-            <div className="registrationform-group">
-              <label>Gender *</label>
-              <select {...register("gender")}> 
-                <option value="">Select</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-              </select>
-              <p className="error">{errors.gender?.message}</p>
-            </div>
-
-            <div className="registrationform-group">
-              <label>State *</label>
-              <select {...register("state")}> 
-                <option value="">Select State</option>
-                {states.map((s, i) => <option key={i} value={s.name}>{s.name}</option>)}
-              </select>
-              <p className="error">{errors.state?.message}</p>
-            </div>
-
-            <div className="registrationform-group">
-              <label>Time Zone *</label>
-              <input {...register("timeZone")} />
-              <p className="error">{errors.timeZone?.message}</p>
-            </div>
-
-            <div className="registrationform-group">
-              <label>Phone Number *</label>
-              <input {...register("phoneNumber")} />
-              <p className="error">{errors.phoneNumber?.message}</p>
-            </div>
-
-            <div className="registrationform-group">
-              <label>Confirm Password *</label>
-              <input type="password" {...register("confirmPassword")} />
-              <p className="error">{errors.confirmPassword?.message}</p>
+ 
+            <div className="form-column">
+              <div className="registrationform-group">
+                <label>Last Name *</label>
+                <input type="text" {...register("lastName")} />
+                <p className="error">{errors.lastName?.message}</p>
+              </div>
+ 
+              <div className="registrationform-group">
+                <label>Gender *</label>
+                <select {...register("gender")}>
+                  <option value="">Select</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+                <p className="error">{errors.gender?.message}</p>
+              </div>
+ 
+              <div className="registrationform-group">
+              {states.length > 0 && (
+<>
+<label htmlFor="state-select">Select a state:</label>
+<select
+                    id="state-select"
+                    {...register("state")}
+                    value={selectedState}
+                    onChange={(e) => setValue("state", e.target.value)}
+>
+                    {states.map((state) => (
+<option key={state.id} value={state.name}>
+                        {state.name}
+</option>
+                    ))}
+</select>
+</>
+              )}
+                <p className="error">{errors.state?.message}</p>
+              </div>
+ 
+              <div className="registrationform-group">
+                <label>Time Zone *</label>
+                <input type="text" {...register("timeZone")} />
+                <p className="error">{errors.timeZone?.message}</p>
+              </div>
+ 
+              <div className="registrationform-group">
+                <label>Phone Number *</label>
+                <input type="text" {...register("phoneNumber")} />
+                <p className="error">{errors.phoneNumber?.message}</p>
+              </div>
+ 
+              <div className="registrationform-group">
+                <label>Confirm Password *</label>
+                <input type="password" {...register("confirmPassword")} />
+                <p className="error">{errors.confirmPassword?.message}</p>
+              </div>
             </div>
           </div>
         </div>
-
-        <button type="submit" className="registersubmit-btn" disabled={loading}>
-          {loading ? "Registering..." : "Register Now"}
+ 
+        <button type="submit" className="registersubmit-btn">
+          Register Now
         </button>
-
-        {showSuccessPopup && (
-          <div className="popup">
-            <div className="popup-content">
-              <h3>Success!</h3>
-              Registration successfully completed.
-              <button onClick={() => setShowSuccessPopup(false)}>
-                <Link to="/login">Ok</Link>
-              </button>
-            </div>
-          </div>
-        )}
-
+ 
         <div className="login-link">
-          <h3>
-            Already a member? <Link to="/login">Login</Link>
-          </h3>
+          <h3>Already a member? <Link to="/login">Login</Link></h3>
         </div>
       </div>
-      {emailErrorPopup && (
-  <div className="popup">
-    <div className="popup-content">
-      <h3>Email Already Used</h3>
-      This email is already associated with an account.
-      <button onClick={() => setEmailErrorPopup(false)}>Close</button>
-    </div>
-  </div>
-)}
     </form>
-   
   );
 };
-
+ 
 export default RegistrationForm;
-
-
