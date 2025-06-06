@@ -37,7 +37,7 @@ const Dashboard = () => {
               {openMenu === "farmers" && (
                 <ul className="submenu">
                   <li>
-                    <Link to="/">Add Farmer</Link>
+                    <Link to="/farmer-form">Add Farmer</Link>
                   </li>
                   <li>
                     <Link to="/view-farmer">View Farmer</Link>

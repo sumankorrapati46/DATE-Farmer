@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
 import "../styles/ForgotUser.css";
 import background from "../assets/background-image.png";
 import logo from "../assets/rightlogo.png";
@@ -37,30 +38,28 @@ const ForgotUserId = () => {
  
   const [showPopup, setShowPopup] = useState(false);
   const [target, setTarget] = useState("");
+  const navigate = useNavigate();
  
-  const onSubmit = async (data) => {
+   const onSubmit = async (data) => {
     try {
-      // ✅ Payload field matches your DTO: emailOrPhone
-      await axios.post("http://localhost:8080/api/auth/forgot-user-id", {
+       await axios.post("http://localhost:8080/api/auth/forgot-user-id", {
         emailOrPhone: data.userInput,
       }, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       });
- 
+
       setTarget(data.userInput);
-      setShowPopup(true);
+      setShowPopup(true); // Show success popup
     } catch (error) {
       console.error("Error:", error);
       alert("Failed to send User ID. Please try again later.");
     }
   };
- 
+
   const handlePopupClose = () => {
-    setShowPopup(false);
-    reset(); // ✅ Reset the form after success
-  };
+  setShowPopup(false);
+  navigate('/otp-verification', { state: { target } });
+};
  
   return (
     <div

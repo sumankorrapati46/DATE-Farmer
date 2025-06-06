@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
 import background from "../assets/background-image.png";
 import logo from "../assets/rightlogo.png";
 import illustration from "../assets/illustration1.png";
@@ -40,29 +41,31 @@ const ForgotPassword = () => {
  
   const [showPopup, setShowPopup] = useState(false);
   const [target, setTarget] = useState("");
- 
-  const onSubmit = async (data) => {
+  
+   const navigate = useNavigate();
+   const onSubmit = async (data) => {
     try {
       const response = await axios.post("http://localhost:8080/api/auth/forgot-password", {
         emailOrPhone: data.userInput
       }, {
         headers: { 'Content-Type': 'application/json' }
       });
- 
-      // Optional: handle success or message from server
+
       setTarget(data.userInput);
-      setShowPopup(true);
+      setShowPopup(true); // Show popup on success
     } catch (error) {
       console.error("Error sending reset request:", error);
       alert("Failed to send reset link. Please try again.");
     }
   };
+
+     const handlePopupClose = () => {
+  setShowPopup(false);
+  navigate('/otp-verification', { state: { target } });
+};
+
  
- 
-  const handlePopupClose = () => {
-    setShowPopup(false);
-    reset(); // ✅ Reset the form
-  };
+
  
   return (
     <div className="ForgotPassword-page" style={{ backgroundImage: `url(${background})` }}>

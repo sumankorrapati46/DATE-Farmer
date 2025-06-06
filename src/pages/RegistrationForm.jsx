@@ -4,6 +4,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "../styles/RegistrationForm.css";
 import background from "../assets/background-image.png";
 import logo from "../assets/rightlogo.png";
@@ -90,17 +91,21 @@ const RegistrationForm = () => {
       setStates([]);
     }
   }, [selectedCountry]);
+  const navigate = useNavigate();
   const onSubmit = async (data) => {
-    try {
-      const response = await axios.post("http://localhost:8080/api/auth/register", data);
-      alert("Registration Successful!");
-      console.log(response.data);
-      reset(); // reset form on successful registration
-    } catch (error) {
-      alert("Registration Failed!");
-      console.error(error);
-    }
-  };
+  try {
+    const response = await axios.post("http://34.56.164.208:8080/api/auth/register", data);
+    console.log(response.data);
+    alert("Registration Successful!");
+    reset(); // Clear form
+
+    // Navigate to login after success
+    navigate("/login");  // 👈 Redirects to login page
+  } catch (error) {
+    alert("Registration Failed!");
+    console.error(error);
+  }
+};
  
   return (
     <form
@@ -130,7 +135,7 @@ const RegistrationForm = () => {
               <div className="registrationform-group">
                 <label>Date of Birth  <span className="required">*</span></label>
                 <input
-                  type="text"
+                  type="date"
                   placeholder="YYYY-MM-DD"
                   {...register("dateOfBirth")}
                 />

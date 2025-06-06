@@ -27,16 +27,25 @@ const Login= () => {
     resolver: yupResolver(schema),
   });
   const navigate = useNavigate();
-   const onSubmit = async (data) => {
-      try {
-        const response = await axios.post("http://localhost:8080/api/auth/login", data);
-        alert("Login Successful!");
-        console.log(response.data);
-      } catch (error) {
-        alert("Login Failed!");
-        console.error(error);
-      }
-    };
+  const onSubmit = async (data) => {
+  try {
+    const response = await axios.post("http://localhost:8080/api/auth/login", data);
+    console.log(response.data);
+
+    // Optionally save token/user data
+    localStorage.setItem("token", response.data.token);
+
+    // Show confirmation dialog
+    if (window.confirm("Login Successful! Click OK to continue to dashboard.")) {
+      navigate("/dashboard");
+    }
+
+  } catch (error) {
+    alert("Login Failed!");
+    console.error(error);
+  }
+};
+
  
   return (
     <div className="login-container" style={{ backgroundImage: `url(${background})` }}>
@@ -60,8 +69,8 @@ const Login= () => {
               </div>
             </div>
  
-            <button type="submit" className="login-btn"><Link to="/">Login</Link></button>
-            <div className="form-links">
+            <button type="submit" className="login-btn">Login</button>
+            <div className="loginform-links">
               <a href="/forgot-password">Forgot your password?</a>
               <a href="/forgot-username">Forgot your ID?</a>
             </div>
