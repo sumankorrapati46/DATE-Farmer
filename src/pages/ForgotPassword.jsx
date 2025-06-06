@@ -61,7 +61,7 @@ const ForgotPassword = () => {
 
      const handlePopupClose = () => {
   setShowPopup(false);
-  navigate('/otp-verification', { state: { target } });
+  navigate('/otp-verification', { state: { target, type: 'password' } });
 };
 
  

@@ -1,5 +1,5 @@
 // OTPVerification.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import background from "../assets/background-image.png";
@@ -11,8 +11,14 @@ const OtpVerification = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Get passed state from previous page
-  const { target, type } = location.state || {}; // type: 'userId' | 'password'
+  const { target, type } = location.state || {}; // Expecting { target, type }
+
+  useEffect(() => {
+    if (!target || !type) {
+      alert("Invalid navigation. Redirecting to Forgot page.");
+      navigate('/forgot-password'); // or '/forgot-user-id' or a general fallback
+    }
+  }, [target, type, navigate]);
 
   const handleVerify = async () => {
     if (!otp || otp.length !== 6) {
@@ -20,27 +26,27 @@ const OtpVerification = () => {
       return;
     }
 
-    try {
-      let url = '';
-      if (type === 'userId') {
-        url = 'http://localhost:8080/api/auth/verify-userid-otp';
-      } else if (type === 'password') {
-        url = 'http://localhost:8080/api/auth/verify-reset-password-otp';
-      } else {
-        alert("Invalid verification type");
-        return;
-      }
+    let url = '';
+    if (type === 'userId') {
+      url = 'http://localhost:8080/api/auth/verify-userid-otp';
+    } else if (type === 'password') {
+      url = 'http://localhost:8080/api/auth/verify-reset-password-otp';
+    } else {
+      alert("Invalid verification type");
+      return;
+    }
 
+    try {
       const res = await axios.post(url, {
         emailOrPhone: target,
         otp: otp
       });
 
+      alert("OTP Verified Successfully");
+
       if (type === 'userId') {
-        alert("OTP Verified Successfully");
         navigate('/change-userid', { state: { user: target } });
       } else {
-        alert("OTP Verified Successfully");
         navigate('/change-password', { state: { user: target } });
       }
     } catch (error) {
@@ -92,4 +98,3 @@ const OtpVerification = () => {
 };
 
 export default OtpVerification;
-
