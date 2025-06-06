@@ -6,6 +6,9 @@ import Login from "./pages/Login";
 import Register from "./pages/RegistrationForm";
 import ForgotUsername from "./pages/ForgotUserid";
 import ForgotPassword from "./pages/ForgotPassword";
+import OtpVerification from './pages/OtpVerification';
+import ChangeUserId from "./pages/ChangeUserId";
+import ChangePassword from './pages/ChangePassword';
 import FarmerView from "./pages/Viewfarmer"
 import Dashboard from "./pages/Dashboard"
 import logo1 from "./assets/leftlogo.png";
@@ -59,14 +62,16 @@ function Layout({ children, currentStep = 0, onStepChange }) {
 function AppContent() {
   const location = useLocation();
   
-  const noFrameRoutes = ["/login", "/register", "/forgot-username", "/forgot-password",
-  "/view-farmer" , "/dashboard" ];
+  const noFrameRoutes = ["/login", "/register", "/forgot-username", "/forgot-password", "/change-userid", "/change-password",
+     "/otp-verification",  "/view-farmer" , "/dashboard" ];
 
   if (noFrameRoutes.includes(location.pathname)) {
     return (
       <Routes>
+        <Route path="/otp-verification" element={<OtpVerification />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/change-userid" element={<ChangeUserId  />} />
+        <Route path="/change-password" element={<ChangePassword  />} />
         <Route path="/forgot-username" element={<ForgotUsername />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/view-farmer" element={<FarmerView />} />
@@ -82,11 +87,12 @@ function AppContent() {
 return (
   <Routes>
     <Route
-      path="/"
+      path="/farmer-form"
       element={
         <FarmerFormWrapper />
       }
     />
+    <Route path="/" element={<Register />} />
   </Routes>
 );
 }

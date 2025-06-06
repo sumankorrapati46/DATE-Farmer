@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react"; 
+import React, { useEffect, useState } from "react";
+import { useParams } from 'react-router-dom'; 
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import { createFarmer, getFarmerById, updateFarmer } from "../api/apiService";
-import { Link,  useParams  } from "react-router-dom";
+
 import { useNavigate } from 'react-router-dom';
 import { yupResolver } from '@hookform/resolvers/yup';
 import Select from 'react-select';
