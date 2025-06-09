@@ -41,16 +41,16 @@ const ForgotPassword = () => {
  
   const [showPopup, setShowPopup] = useState(false);
   const [target, setTarget] = useState("");
-  
+ 
    const navigate = useNavigate();
    const onSubmit = async (data) => {
     try {
-      const response = await axios.post("http://localhost:8080/api/auth/forgot-password", {
+      const response = await axios.post("http://34.56.164.208/api/auth/forgot-password", {
         emailOrPhone: data.userInput
       }, {
         headers: { 'Content-Type': 'application/json' }
       });
-
+ 
       setTarget(data.userInput);
       setShowPopup(true); // Show popup on success
     } catch (error) {
@@ -58,14 +58,14 @@ const ForgotPassword = () => {
       alert("Failed to send reset link. Please try again.");
     }
   };
-
+ 
      const handlePopupClose = () => {
   setShowPopup(false);
-  navigate('/otp-verification', { state: { target } });
+  navigate('/otp-verification', { state: { target, type: 'password' } });
 };
-
  
-
+ 
+ 
  
   return (
     <div className="ForgotPassword-page" style={{ backgroundImage: `url(${background})` }}>
@@ -79,11 +79,11 @@ const ForgotPassword = () => {
  
         <form onSubmit={handleSubmit(onSubmit)}>
           <label>
-            Email/Phone/ID <span className="required">*</span>
+            Email<span className="required">*</span>
           </label>
           <input
             {...register("userInput")}
-            placeholder="Enter your Email or Phone or ID"
+            placeholder="Enter your Email"
           />
           {errors.userInput && <p className="error">{errors.userInput.message}</p>}
  

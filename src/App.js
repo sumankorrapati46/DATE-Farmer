@@ -52,6 +52,9 @@ function Layout({ children, currentStep = 0, onStepChange }) {
           ))}
         </nav>
       </div>
+       <div className="form-title">
+       <u><h3>  {steps[currentStep].replace(/^[^\w]+/, "").trim()} </h3></u>
+       </div>
 
       <div className="content-container">{children}</div>
     </div>

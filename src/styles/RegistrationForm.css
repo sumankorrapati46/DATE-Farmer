@@ -40,13 +40,13 @@
   
   h2 {
     text-align: center;
-    margin-bottom: 20px;
+    margin-top: 20px;
     color: black;
   }
   
   .registration-grid {
     display: flex;
-    height: 550px;
+    height: 600px;
     gap: 20px;
     align-items: flex-end;
   }
@@ -54,6 +54,7 @@
   .form-column {
     flex: 1;
     width:100%;
+   
   }
    
   
@@ -69,9 +70,10 @@
     border-radius: 5px;
   }
   
-  .error {
+  .reg-error {
     color: red;
     font-size: 12px;
+    margin-top: 4px;
   }
   
   .registersubmit-btn {

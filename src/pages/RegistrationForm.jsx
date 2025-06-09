@@ -129,7 +129,7 @@ const RegistrationForm = () => {
               <div className="registrationform-group">
                 <label>First Name <span className="required">*</span></label>
                 <input type="text" {...register("firstName")} />
-                <p className="error">{errors.firstName?.message}</p>
+                <p className="reg-error">{errors.firstName?.message}</p>
               </div>
  
               <div className="registrationform-group">
@@ -139,7 +139,7 @@ const RegistrationForm = () => {
                   placeholder="YYYY-MM-DD"
                   {...register("dateOfBirth")}
                 />
-                <p className="error">{errors.dateOfBirth?.message}</p>
+                <p className="reg-error">{errors.dateOfBirth?.message}</p>
               </div>
  
               <div className="registrationform-group">
@@ -161,25 +161,25 @@ const RegistrationForm = () => {
 </option>
                 ))}
 </select>
-                <p className="error">{errors.country?.message}</p>
+                <p className="reg-error">{errors.country?.message}</p>
               </div>
  
               <div className="registrationform-group">
                 <label>Pin Code *</label>
                 <input type="text" {...register("pinCode")} />
-                <p className="error">{errors.pinCode?.message}</p>
+                <p className="reg-error">{errors.pinCode?.message}</p>
               </div>
  
               <div className="registrationform-group">
                 <label>Email Address *</label>
                 <input type="email" {...register("email")} />
-                <p className="error">{errors.email?.message}</p>
+                <p className="reg-error">{errors.email?.message}</p>
               </div>
  
               <div className="registrationform-group">
                 <label>Create Password *</label>
                 <input type="password" {...register("password")} />
-                <p className="error">{errors.password?.message}</p>
+                <p className="reg-error">{errors.password?.message}</p>
               </div>
             </div>
  
@@ -187,7 +187,7 @@ const RegistrationForm = () => {
               <div className="registrationform-group">
                 <label>Last Name *</label>
                 <input type="text" {...register("lastName")} />
-                <p className="error">{errors.lastName?.message}</p>
+                <p className="reg-error">{errors.lastName?.message}</p>
               </div>
  
               <div className="registrationform-group">
@@ -198,7 +198,7 @@ const RegistrationForm = () => {
                   <option value="Female">Female</option>
                   <option value="Other">Other</option>
                 </select>
-                <p className="error">{errors.gender?.message}</p>
+                <p className="reg-error">{errors.gender?.message}</p>
               </div>
  
               <div className="registrationform-group">
@@ -216,25 +216,25 @@ const RegistrationForm = () => {
       </option>
     ))}
   </select>
-                <p className="error">{errors.state?.message}</p>
+                <p className="reg-error">{errors.state?.message}</p>
               </div>
  
               <div className="registrationform-group">
                 <label>Time Zone *</label>
                 <input type="text" {...register("timeZone")} />
-                <p className="error">{errors.timeZone?.message}</p>
+                <p className="reg-error">{errors.timeZone?.message}</p>
               </div>
  
               <div className="registrationform-group">
                 <label>Phone Number *</label>
                 <input type="text" {...register("phoneNumber")} />
-                <p className="error">{errors.phoneNumber?.message}</p>
+                <p className="reg-error">{errors.phoneNumber?.message}</p>
               </div>
  
               <div className="registrationform-group">
                 <label>Confirm Password *</label>
                 <input type="password" {...register("confirmPassword")} />
-                <p className="error">{errors.confirmPassword?.message}</p>
+                <p className="reg-error">{errors.confirmPassword?.message}</p>
               </div>
             </div>
           </div>
