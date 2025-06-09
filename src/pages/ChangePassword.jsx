@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import "../styles/Change.css";
 import background from "../assets/background-image.png"; // Adjust path if needed
 import logo from "../assets/rightlogo.png"; // Replace with your actual logo
-
+ 
 // ✅ Validation Schema
 const validationSchema = Yup.object().shape({
   password: Yup.string()
@@ -18,12 +18,12 @@ const validationSchema = Yup.object().shape({
     .oneOf([Yup.ref('password')], 'Passwords must match')
     .required('Please confirm your password'),
 });
-
+ 
 const ChangePassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const navigate = useNavigate();
-
+ 
   // ✅ Setup useForm
   const {
     register,
@@ -32,31 +32,31 @@ const ChangePassword = () => {
   } = useForm({
     resolver: yupResolver(validationSchema)
   });
-
+ 
   // ✅ Submit handler
   const onSubmit = async (data) => {
     try {
-      await fetch('http://localhost:8080/api/auth/set-password', {
+      await fetch('http://34.56.164.208/api/auth/reset-password/confirm', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: data.password }),
       });
-
+ 
       alert('Password changed successfully!');
-      navigate('/login');
+      navigate('');
     } catch (error) {
       console.error('Error:', error);
       alert('Failed to change password');
     }
   };
-
+ 
   return (
     <div className="password-container" style={{ backgroundImage: `url(${background})` }}>
       <img src={logo} alt="Logo" className="password-logo" />
       <div className="password-box">
         <h2>Password</h2>
         <h4>Set a strong password to prevent unauthorized access to your account.</h4>
-
+ 
         <form onSubmit={handleSubmit(onSubmit)} className="change-pass">
           <div className="input-wrapper">
             <label>New Password</label>
@@ -69,7 +69,7 @@ const ChangePassword = () => {
             </div>
             {errors.password && <p className="error-text">{errors.password.message}</p>}
           </div>
-
+ 
           <div className="input-wrapper">
             <label>Confirm New Password</label>
             <div className="password-field">
@@ -81,12 +81,12 @@ const ChangePassword = () => {
             </div>
             {errors.confirmPassword && <p className="error-text">{errors.confirmPassword.message}</p>}
           </div>
-
+ 
           <button type="submit" className="change-btn">Change Password</button>
         </form>
       </div>
     </div>
   );
 };
-
+ 
 export default ChangePassword;

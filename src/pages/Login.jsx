@@ -36,8 +36,8 @@ const Login= () => {
     localStorage.setItem("token", response.data.token);
 
     // Show confirmation dialog
-    if (window.confirm("Login Successful! Click OK to continue to dashboard.")) {
-      navigate("/dashboard");
+    if (window.confirm("Login Successfull!")) {
+      navigate("");
     }
 
   } catch (error) {
@@ -58,7 +58,7 @@ const Login= () => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="form-row">
               <div className="form-group">
-                <label>userName/Phone/ID *</label>
+                <label>Email *</label>
                 <input type="text" {...register("userName")} />
                 <p className="error">{errors.userName?.message}</p>
               </div>
@@ -69,7 +69,7 @@ const Login= () => {
               </div>
             </div>
  
-            <button type="submit" className="login-btn">Login</button>
+            <button type="submit" className="login-btn" onClick={() => navigate('/dashboard')}>Login</button>
             <div className="loginform-links">
               <a href="/forgot-password">Forgot your password?</a>
               <a href="/forgot-username">Forgot your ID?</a>
