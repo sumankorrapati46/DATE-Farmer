@@ -4,16 +4,18 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { Link } from "react-router-dom";
 import * as yup from "yup";
 import axios from "axios";
-import "../styles/Login.css"; // Add your styles
+import "../styles/Login.css"; 
 import background from "../assets/background-image.png";
 import logo from "../assets/rightlogo.png";
-import illustration from "../assets/illustration.png"; // Your image
+import illustration from "../assets/illustration.png"; 
 import { loginUser } from "../api/apiService";
 import { useNavigate } from "react-router-dom";
  
-// Validation Schema
+
 const schema = yup.object().shape({
-  userName: yup.string().required("userName is required"),
+  userName: yup.string()
+    .required("Email is required")
+    .matches(/^[^@]+@[^@]+\.[^@]+$/, "Email must include '@' and '.' and be valid"),
   password: yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
 });
  
@@ -26,18 +28,19 @@ const Login= () => {
   } = useForm({
     resolver: yupResolver(schema),
   });
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const navigate = useNavigate();
-  const onSubmit = async (data) => {
+ const onSubmit = async (data) => {
   try {
     const response = await axios.post("http://localhost:8080/api/auth/login", data);
-    console.log(response.data);
+    console.log("Login Response:", response.data);
 
-    // Optionally save token/user data
-    localStorage.setItem("token", response.data.token);
-
-    // Show confirmation dialog
-    if (window.confirm("Login Successfull!")) {
-      navigate("");
+    if (response.data && response.data.token) {
+      localStorage.setItem("token", response.data.token);
+      navigate("/dashboard"); 
+    } else {
+      alert("Login failed. Please check your credentials.");
+      console.error("Token missing in response:", response.data);
     }
 
   } catch (error) {
@@ -49,27 +52,29 @@ const Login= () => {
  
   return (
     <div className="login-container" style={{ backgroundImage: `url(${background})` }}>
-      <img src={logo} alt="Logo" className="logo" />  {/* Top-Right Logo */}
- 
+      <img src={logo} alt="Logo" className="logo" />  
       <div className="login-content">
-        {/* Left Side - Login Form */}
+       
         <div className="login-form">
           <h2>Login to your account</h2>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="form-row">
-              <div className="form-group">
+            <div className="login-form-row">
+              <div className="loginform-group">
                 <label>Email *</label>
                 <input type="text" {...register("userName")} />
-                <p className="error">{errors.userName?.message}</p>
+                <p className="login-error">{errors.userName?.message}</p>
               </div>
-              <div className="form-group">
+              <div className="loginform-group">
                 <label>Password *</label>
-                <input type="password" {...register("password")} />
-                <p className="error">{errors.password?.message}</p>
+                
+                <input type="password" {...register("password")}/>
+                <p className="login-error">{errors.password?.message}</p>
               </div>
             </div>
  
-            <button type="submit" className="login-btn" onClick={() => navigate('/dashboard')}>Login</button>
+           <button type="submit" className="login-btn" disabled={isSubmitting}>
+  {isSubmitting ? "Logging in..." : "Login"}
+</button>
             <div className="loginform-links">
               <a href="/forgot-password">Forgot your password?</a>
               <a href="/forgot-username">Forgot your ID?</a>
@@ -77,9 +82,7 @@ const Login= () => {
           </form>
         </div>
         </div>
-       
- 
-        {/* Right Side - Illustration */}
+
         <div className="login-image">
           <img src={illustration} alt="Login Illustration" />
         </div>

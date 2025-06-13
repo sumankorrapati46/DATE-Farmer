@@ -123,9 +123,9 @@ const RegistrationForm = () => {
       <div className="registration-form-container">
         <h2>Registration Form</h2>
  
-        <div className="registration-form">
+        <div className="dateregistration-form">
           <div className="registration-grid">
-            <div className="form-column">
+            <div className="leftform-column">
               <div className="registrationform-group">
                 <label>First Name <span className="required">*</span></label>
                 <input type="text" {...register("firstName")} />
@@ -183,7 +183,7 @@ const RegistrationForm = () => {
               </div>
             </div>
  
-            <div className="form-column">
+            <div className="rightform-column">
               <div className="registrationform-group">
                 <label>Last Name *</label>
                 <input type="text" {...register("lastName")} />

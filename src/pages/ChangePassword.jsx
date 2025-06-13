@@ -1,13 +1,13 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as Yup from 'yup';
-import { useNavigate } from 'react-router-dom';
-import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import "../styles/Change.css";
-import background from "../assets/background-image.png"; // Adjust path if needed
-import logo from "../assets/rightlogo.png"; // Replace with your actual logo
+import background from "../assets/background-image.png";
+import logo from "../assets/rightlogo.png";
  
-// ✅ Validation Schema
+/* ----------------- Validation Schema ----------------- */
 const validationSchema = Yup.object().shape({
   password: Yup.string()
     .required('Password is required')
@@ -16,15 +16,28 @@ const validationSchema = Yup.object().shape({
     .matches(/[!@#$%^&*]/, 'Must include a special character (!@#$%^&*)'),
   confirmPassword: Yup.string()
     .oneOf([Yup.ref('password')], 'Passwords must match')
-    .required('Please confirm your password'),
+    .required('Please confirm your password')
 });
  
 const ChangePassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
  
-  // ✅ Setup useForm
+  // Retrieve email/phone from either route or sessionStorage
+  const routedEmail = location.state?.user;
+  const [emailOrPhone, setEmailOrPhone] = useState(
+    routedEmail || sessionStorage.getItem('emailOrPhone') || ''
+  );
+ 
+  useEffect(() => {
+    if (emailOrPhone) {
+      sessionStorage.setItem('emailOrPhone', emailOrPhone);
+    }
+  }, [emailOrPhone]);
+ 
   const {
     register,
     handleSubmit,
@@ -33,20 +46,40 @@ const ChangePassword = () => {
     resolver: yupResolver(validationSchema)
   });
  
-  // ✅ Submit handler
   const onSubmit = async (data) => {
+    if (!emailOrPhone) {
+      alert('Missing email or phone. Please go through the OTP verification step.');
+      return;
+    }
+ 
+    const payload = {
+      emailOrPhone,
+      newPassword: data.password,
+      confirmPassword: data.confirmPassword
+    };
+ 
     try {
-      await fetch('http://34.56.164.208/api/auth/reset-password/confirm', {
+      setLoading(true);
+ 
+      const response = await fetch('http://localhost:8080/api/auth/reset-password/confirm', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: data.password }),
+        body: JSON.stringify(payload)
       });
  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Failed to reset password');
+      }
+ 
       alert('Password changed successfully!');
-      navigate('');
+      sessionStorage.removeItem('emailOrPhone');
+      navigate('/login');
     } catch (error) {
-      console.error('Error:', error);
-      alert('Failed to change password');
+      console.error(error);
+      alert('Failed to change password: ' + error.message);
+    } finally {
+      setLoading(false);
     }
   };
  
@@ -62,8 +95,8 @@ const ChangePassword = () => {
             <label>New Password</label>
             <div className="password-field">
               <input
-                type={showPassword ? "text" : "password"}
-                {...register("password")}
+                type={showPassword ? 'text' : 'password'}
+                {...register('password')}
               />
               <span onClick={() => setShowPassword(!showPassword)}>👁️</span>
             </div>
@@ -74,15 +107,19 @@ const ChangePassword = () => {
             <label>Confirm New Password</label>
             <div className="password-field">
               <input
-                type={showConfirm ? "text" : "password"}
-                {...register("confirmPassword")}
+                type={showConfirm ? 'text' : 'password'}
+                {...register('confirmPassword')}
               />
               <span onClick={() => setShowConfirm(!showConfirm)}>👁️</span>
             </div>
-            {errors.confirmPassword && <p className="error-text">{errors.confirmPassword.message}</p>}
+            {errors.confirmPassword && (
+              <p className="error-text">{errors.confirmPassword.message}</p>
+            )}
           </div>
  
-          <button type="submit" className="change-btn">Change Password</button>
+          <button type="submit" className="change-btn" disabled={loading}>
+            {loading ? 'Updating...' : 'Change Password'}
+          </button>
         </form>
       </div>
     </div>
@@ -90,3 +127,5 @@ const ChangePassword = () => {
 };
  
 export default ChangePassword;
+ 
+ 
