@@ -5,251 +5,259 @@
   import { useNavigate } from 'react-router-dom';
   import { yupResolver } from '@hookform/resolvers/yup';
   import Select from 'react-select';
-  import * as Yup from 'yup';
+  import axios from "axios";
+  import * as yup from 'yup';
   import { parse, isValid, differenceInYears } from "date-fns";
   import farmImage from "../assets/farmImage.png";
   import "../styles/Farmerform.css";
 
 
- const stepSchemas = [
-  // Step 0: Personal Information
-  Yup.object().shape({
-    firstName: Yup.string()
+    const stepSchemas = [
+  // Step 0: Personal Information schema
+     yup.object().shape({
+     firstName: yup.string()
       .required("First Name is required")
       .matches(/^[A-Za-z]{2,26}$/, "First Name must be 2–26 letters only"),
-    middleName: Yup.string()
+     middleName: yup.string()
       .required("Middle Name is required")
       .matches(/^[A-Za-z]{1,26}$/, "Middle Name must contain only letters"),
-    lastName: Yup.string()
+     lastName: yup.string()
       .required("Last Name is required")
       .matches(/^[A-Za-z]{2,26}$/, "Last Name must be 2–26 letters only"),
-    gender: Yup.string().required("Gender is required"),
-    salutation: Yup.string()
+     gender: yup.string().required("Gender is required"),
+     salutation: yup.string()
       .required("Salutation is required")
       .oneOf(["Mr.", "Mrs.", "Ms.", "Miss.", "Dr."], "Select a valid salutation"),
-    nationality: Yup.mixed()
+     nationality: yup.mixed()
       .required("Nationality is required")
       .transform((value) =>
         typeof value === "object" && value?.value ? value.value : value
       )
       .test("is-string", "Nationality must be a string", (value) => typeof value === "string"),
-    dateofBirth: Yup.string()
+     dateOfBirth: yup.string()
       .required("Date of Birth is required")
-      .test("valid-format", "Enter date as YYYY-MM-DD", (value) => {
-        const parsed = parse(value, "yyyy-MM-dd", new Date());
-        return isValid(parsed);
-      })
-      .test("age-limit", "Age must be between 18 and 90 years", (value) => {
-        const parsed = parse(value, "yyyy-MM-dd", new Date());
-        if (!isValid(parsed)) return false;
-        const age = new Date().getFullYear() - parsed.getFullYear();
-        return age >= 18 && age <= 90;
-      }),
-    fatherName: Yup.string()
+      .test("age-range", "Age must be between 18 and 90 years", function (value) {
+      if (!value) return false;
+       const dob = new Date(value);
+       const today = new Date();
+       const age = today.getFullYear() - dob.getFullYear();
+       const m = today.getMonth() - dob.getMonth();
+       const isBirthdayPassed = m > 0 || (m === 0 && today.getDate() >= dob.getDate());
+
+       const actualAge = isBirthdayPassed ? age : age - 1;
+       return actualAge >= 18 && actualAge <= 90;
+       }),
+
+     fatherName: yup.string()
       .nullable()
       .notRequired()
       .matches(/^[A-Za-z\s]{2,40}$/, "Father Name must contain only letters"),
-    alternativeNumber: Yup.string()
+     alternativeNumber: yup.string()
       .nullable()
       .transform((value, originalValue) => (originalValue.trim() === "" ? null : value))
       .matches(/^\d{10}$/, "Enter a valid 10-digit alternative number"),
-    contactNumber: Yup.string()
+     contactNumber: yup.string()
       .nullable()
       .transform((value, originalValue) => (originalValue.trim() === "" ? null : value))
       .matches(/^\d{10}$/, "Enter a valid 10-digit contact number"),
-    alternativeType: Yup.string()
+     alternativeType: yup.string()
       .oneOf(["Father", "Mother", "Brother", "Sister", "Son", "Daughter", "Spouse", "Other", ""], "Select a valid relation")
       .nullable()
       .notRequired(),
-    photo: Yup.mixed().nullable().notRequired(),
-  }),
+     photo: yup.mixed().nullable().notRequired(),
+     }),
 
   // Step 1: Address
-  Yup.object().shape({
-    country: Yup.string().required("Country is required"),
-    state: Yup.string().required("State is required"),
-    district: Yup.string().required("District is required"),
-    mandal: Yup.string().required("Mandal is required"),
-    village: Yup.string().required("Village is required"),
-    pincode: Yup.string()
+     yup.object().shape({
+     country: yup.string().required("Country is required"),
+     state: yup.string().required("State is required"),
+     district: yup.string().required("District is required"),
+     mandal: yup.string().required("Mandal is required"),
+     village: yup.string().required("Village is required"),
+     pincode: yup.string()
       .required("Pincode is required")
       .matches(/^\d{6}$/, "Enter a valid 6-digit pincode"),
-  }),
+     }),
 
   // Step 2: Professional Information
-  Yup.object().shape({
-    education: Yup.string().nullable(),
-    experience: Yup.string().nullable(),
-  }),
+     yup.object().shape({
+     education: yup.string().nullable(),
+     experience: yup.string().nullable(),
+     }),
 
   // Step 3: Current Crop Information
-  Yup.object().shape({
-    surveyNumber: Yup.string().nullable(),
-    totalLandHolding: Yup.string().nullable(),
-    geoTag: Yup.string().nullable(),
-    selectCrop: Yup.string().nullable(),
-    netIncome: Yup.string().nullable(),
-    soilTest: Yup.string().required("Soil test selection is required"),
-    soilTestCertificate: Yup.mixed().nullable().notRequired(),
-  }),
+     yup.object().shape({
+     surveyNumber: yup.string().nullable(),
+     totalLandHolding: yup.string().nullable(),
+     geoTag: yup.string().nullable(),
+     selectCrop: yup.string().nullable(),
+     netIncome: yup.string().nullable(),
+     soilTest: yup.string().required("Soil test selection is required"),
+     soilTestCertificate: yup.mixed().nullable().notRequired(),
+     }),
 
   // Step 4: Proposed Crop Information
-  Yup.object().shape({
-    surveyNumber: Yup.string().nullable(),
-    geoTag: Yup.string().nullable(),
-    cropType: Yup.string().nullable(),
-    totalLandHolding: Yup.string().nullable(),
-    netIncome: Yup.string().nullable(),
-    soilTest: Yup.string().nullable(),
-    soilTestCertificate: Yup.mixed().nullable().notRequired(),
-  }),
+    yup.object().shape({
+    surveyNumber: yup.string().nullable(),
+    geoTag: yup.string().nullable(),
+    cropType: yup.string().nullable(),
+    totalLandHolding: yup.string().nullable(),
+    netIncome: yup.string().nullable(),
+    soilTest: yup.string().nullable(),
+    soilTestCertificate: yup.mixed().nullable().notRequired(),
+   }),
 
   // Step 5: Irrigation Details
-  Yup.object().shape({
-    waterSource: Yup.string().nullable(),
-    borewellDischarge: Yup.string().nullable(),
-    summerDischarge: Yup.string().nullable(),
-    borewellLocation: Yup.string().nullable(),
-  }),
+    yup.object().shape({
+    waterSource: yup.string().nullable(),
+    borewellDischarge: yup.string().nullable(),
+    summerDischarge: yup.string().nullable(),
+    borewellLocation: yup.string().nullable(),
+   }),
 
   // Step 6: Other Information (Bank)
-  Yup.object().shape({
-    bankName: Yup.string().nullable(),
-    accountNumber: Yup.string()
+    yup.object().shape({
+    bankName: yup.string().nullable(),
+    accountNumber: yup.string()
       .nullable()
       .matches(/^\d{9,18}$/, "Account Number must be 9-18 digits"),
-    branchName: Yup.string().nullable(),
-    ifscCode: Yup.string()
+    branchName: yup.string().nullable(),
+    ifscCode: yup.string()
       .nullable()
       .matches(/^[A-Z]{4}0[A-Z0-9]{6}$/, "Enter valid IFSC code"),
-    passbookFile: Yup.mixed()
+    passbookFile: yup.mixed()
       .nullable()
       .test("fileSize", "File is too large", value => !value || value.size <= 5 * 1024 * 1024)
       .test("fileType", "Unsupported file format", value =>
         !value || ["image/jpeg", "image/png", "application/pdf"].includes(value.type)),
-  }),
+     }),
 
   // Step 7: Documents
-  Yup.object().shape({
-    voterId: Yup.string().nullable(),
-    aadharNumber: Yup.string()
+    yup.object().shape({
+    voterId: yup.string().nullable(),
+    aadharNumber: yup.string()
       .nullable()
       .matches(/^\d{12}$/, "Aadhar must be 12 digits"),
-    panNumber: Yup.string()
+    panNumber: yup.string()
       .nullable()
       .matches(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, "Enter valid PAN number"),
-    ppbNumber: Yup.string().nullable(),
-    passbookPhoto: Yup.mixed()
+    ppbNumber: yup.string().nullable(),
+    passbookPhoto: yup.mixed()
       .nullable()
       .test("fileSize", "File too large", value => !value || value.size <= 10 * 1024 * 1024),
-  }),
-];
+     }),
+  ];
 
-const steps = ["Personal Information", "Address","Professional Information","Current Crop Information", "Proposed Crop Information",
-                  "Irrigation Details","Other Information", "Documents",];
+    const steps = ["Personal Information", "Address","Professional Information","Current Crop Information",
+                  "Proposed Crop Information",  "Irrigation Details","Other Information", "Documents",];
 
-  const FarmerForm = ({ currentStep, setCurrentStep }) => {
-  const totalSteps = steps.length;
-  const [photoPreviewStep0, setPhotoPreviewStep0] = useState(null);
-  const [photoPreviewStep3, setPhotoPreviewStep3] = useState(null);
+    const FarmerForm = ({ currentStep, setCurrentStep }) => {
+    const totalSteps = steps.length;
+    const [photoPreviewStep0, setPhotoPreviewStep0] = useState(null);
+    const [photoPreviewStep3, setPhotoPreviewStep3] = useState(null);
 
-  const handlePhotoChangeStep0 = (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    setPhotoPreviewStep0(URL.createObjectURL(file));
-    setValue("photoStep0", file); 
-  }
-};
+    const handlePhotoChangeStep0 = (e) => {
+    const file = e.target.files[0];
+      if (file) {
+      setPhotoPreviewStep0(URL.createObjectURL(file));
+      setValue("photoStep0", file); 
+     }
+    };
 
-const handlePhotoChangeStep3 = (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    setPhotoPreviewStep3(URL.createObjectURL(file));
-    setValue("photoStep3", file); 
-  }
-};
+    const handlePhotoChangeStep3 = (e) => {
+    const file = e.target.files[0];
+     if (file) {
+      setPhotoPreviewStep3(URL.createObjectURL(file));
+      setValue("photoStep3", file); 
+     }
+    };
 
-const cropOptions = {
-  Grains: [ "Paddy", "Maize", "Red Gram", "Black Gram", "Bengal Gram", "Groundnut", "Green Gram", "Sweet Corn", ],
-  Vegetables: [ "Dry Chilli", "Mirchi", "Tomato", "Ladies Finger", "Ridge Gourd", "Broad Beans", "Brinjal",
+    const cropOptions = {
+      Grains: [ "Paddy", "Maize", "Red Gram", "Black Gram", "Bengal Gram", "Groundnut", "Green Gram", "Sweet Corn", ],
+      Vegetables: [ "Dry Chilli", "Mirchi", "Tomato", "Ladies Finger", "Ridge Gourd", "Broad Beans", "Brinjal",
                 "Cluster Beans", "Bitter Gourd", "Bottle Gourd", ],
-  Cotton: ["Cotton"],
-};
+      Cotton: ["Cotton"],
+    };
 
-const [waterSourceCategory, setWaterSourceCategory] = useState("");
-const waterSourceOptions = ["Borewell", "Open Well", "Canal", "Tank", "River", "Drip"];
+    const [waterSourceCategory, setWaterSourceCategory] = useState("");
+    const waterSourceOptions = ["Borewell", "Open Well", "Canal", "Tank", "River", "Drip"];
 
-const [cropCategory, setCropCategory] = useState("");
-const [cropCategoryStep3, setCropCategoryStep3] = useState("");
-const [cropCategoryStep4, setCropCategoryStep4] = useState("");
-  const methods = useForm({
-    resolver: yupResolver(stepSchemas[currentStep]),
-    mode: "onChange",
-  });
-  
- const { register, control, handleSubmit,  reset, formState: { errors }, watch, trigger, setValue }  = useForm();
- const soilTestValue = watch("soilTest");
- const selectedDoc = watch("documentType");
- const navigate = useNavigate();
- const { farmerId } = useParams();
- const isEditMode = Boolean(farmerId);
-
- const onSubmit = async (data) => {
-    const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
-      formData.append(key, value ?? '');
+    const [cropCategory, setCropCategory] = useState("");
+    const [cropCategoryStep3, setCropCategoryStep3] = useState("");
+    const [cropCategoryStep4, setCropCategoryStep4] = useState("");
+    const methods = useForm({
+      resolver: yupResolver(stepSchemas[currentStep]),
+       mode: "onChange",
     });
+    const { register, handleSubmit, control, formState: { errors }, setValue, watch, reset, trigger,} = useForm({
+      resolver: yupResolver(stepSchemas[currentStep]),
+      mode: "onChange",
+    });
+    const soilTestValue = watch("soilTest");
+    const selectedDoc = watch("documentType");
+    const navigate = useNavigate();
+    const { farmerId } = useParams();
+    const isEditMode = Boolean(farmerId);
 
-    try {
-      if (isEditMode) {
-        await updateFarmer(farmerId, formData);
-      } else {
-        await createFarmer(formData);
-      }
-      setShowSuccessPopup(true);
-    } catch (error) {
-      console.error("Submit Error:", error);
-     alert('Form submitted successfully.');
-    }
-  };
+    const onSubmit = async (data) => {
+  const formData = new FormData();
+  Object.entries(data).forEach(([key, value]) => {
+    formData.append(key, value ?? '');
+  });
  
- const handleCreateSubmit = async (data) => {
-  try {
-   
-    const result = await createFarmer(data);
-    console.log("Farmer Created:", result);
-    setShowSuccessPopup(true);
-  } catch (error) {
-    alert("Failed to submit. Please try again.");
+  const token = localStorage.getItem('token');
+ 
+  if (!token) {
+    alert("You are not logged in. Please log in to continue."); 
+    return;
   }
-};
-const handleUpdateSubmit = async (data) => {
+ 
   try {
-   
-    const farmerId = "123"; 
-    const result = await updateFarmer(farmerId, data);
-    console.log("Farmer Updated:", result);
-    setShowSuccessPopup(true);
-  } catch (error) {
-    alert("Update failed. Please try again.");
-  }
-};
-useEffect(() => {
-  const loadFarmer = async () => {
-    try {
-      const farmerData = await getFarmerById(farmerId);
-      reset(farmerData);
-    } catch (error) {
-      console.error("Load failed", error);
+    if (isEditMode) {
+      // GET Farmer by ID before updating
+      const getResponse = await axios.get(
+        `http://localhost:8080/api/farmers/${farmerId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log("Fetched Farmer Before Update:", getResponse.data);
+ 
+      // UPDATE farmer
+      await axios.put(
+        `http://localhost:8080/api/farmers/${farmerId}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+    } else {
+      // CREATE new farmer
+      await axios.post(
+        'http://localhost:8080/api/farmers',
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
     }
-  };
-
-  if (isEditMode) {
-    loadFarmer();
+ 
+    setShowSuccessPopup(true);
+  } catch (error) {
+    console.error('Submit Error:', error.response?.data || error.message);
+    alert('Failed to submit. Please try again.');
   }
-}, []);
+ };
+ 
 
-  
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [loading, setLoading] = useState(false);
   const countryOptions = [
@@ -345,7 +353,7 @@ useEffect(() => {
     <div className="farmer-wrapper">
            <div className="form-full">
         <FormProvider {...methods}>
-          <form onSubmit={handleSubmit(isEditMode ? handleUpdateSubmit : handleCreateSubmit)} div className="farmer">
+           <form onSubmit={methods.handleSubmit(onSubmit)}div className="farmer">
          
            {currentStep === 0 && (
   <div className="form-grid">
@@ -368,7 +376,20 @@ useEffect(() => {
         />
       </div>
 
-      {/* Name Fields */}
+          <label className="label">Salutation<span className="required">*</span></label>
+      <select
+        className="input"
+        {...register("salutation", { required: "Salutation is required" })}
+      >
+        <option value="">Select</option>
+        <option value="Mr">Mr.</option>
+        <option value="Mrs.">Mrs.</option>
+        <option value="Ms.">Ms.</option>
+        <option value="Miss.">Miss.</option>
+        <option value="Dr.">Dr.</option>
+      </select>
+      {errors.salutation && <p className="error">{errors.salutation.message}</p>}
+    
       <label className="label">First Name<span className="required">*</span></label>
       <input
         className="input"
@@ -392,8 +413,11 @@ useEffect(() => {
         {...register("lastName", { required: "Last Name is required" })}
       />
       {errors.lastName && <p className="error">{errors.lastName.message}</p>}
+     </div>
 
-      <label className="label">Gender<span className="required">*</span></label>
+    <div className="field-right">
+      
+       <label className="label">Gender<span className="required">*</span></label>
       <select
         className="input"
         {...register("gender", { required: "Gender is required" })}
@@ -404,23 +428,7 @@ useEffect(() => {
         <option value="Transgender">Transgender</option>
       </select>
       {errors.gender && <p className="error">{errors.gender.message}</p>}
-    </div>
-
-    <div className="field-right">
-       <label className="label">Salutation<span className="required">*</span></label>
-      <select
-        className="input"
-        {...register("salutation", { required: "Salutation is required" })}
-      >
-        <option value="">Select</option>
-        <option value="Mr">Mr</option>
-        <option value="Mrs.">Mrs.</option>
-        <option value="Ms.">Ms.</option>
-        <option value="Miss.">Miss.</option>
-        <option value="Dr.">Dr.</option>
-      </select>
-      {errors.salutation && <p className="error">{errors.salutation.message}</p>}
-
+ 
      <label className="label">Nationality<span className="required">*</span></label>
       <select
         className="input"
@@ -431,31 +439,25 @@ useEffect(() => {
       </select>
       {errors.nationality && <p className="error">{errors.nationality.message}</p>}
 
-      <label className="label">DOB<span className="required">*</span></label>
-      <input
-        type="date"
-        className="input"
-        {...register("dob", { required: "Date of Birth is required" })}
-      />
-      {errors.dob && <p className="error">{errors.dob.message}</p>}
+         <label>Date of Birth  <span className="required">*</span></label>
+                <input
+                  type="date"
+                  placeholder="YYYY-MM-DD"
+                  {...register("dateOfBirth")}
+                />
+                <p className="reg-error">{errors.dateOfBirth?.message}</p>
 
-      <label>
-        Father Name <span className="optional"></span>
-        <input type="text" {...register("fatherName")} placeholder="Enter father's name" />
-      </label>
-      <p className="error">{errors.fatherName?.message}</p>
-
-      <label>
-        Alternative Number <span className="optional"></span>
-        <input type="tel" maxLength={10} {...register("alternativeNumber")} placeholder="10-digit number" />
-      </label>
-      <p className="error">{errors.alternativeNumber?.message}</p>
-
-      <label>
+         <label>
         Contact Number <span className="optional"></span>
         <input type="tel" maxLength={10} {...register("contactNumber")} placeholder="10-digit number" />
       </label>
       <p className="error">{errors.contactNumber?.message}</p>
+      <label>
+
+        Father Name <span className="optional"></span>
+        <input type="text" {...register("fatherName")} placeholder="Enter father's name" />
+      </label>
+      <p className="error">{errors.fatherName?.message}</p>
 
       <label>
         Alternative Type <span className="optional"></span>
@@ -472,110 +474,138 @@ useEffect(() => {
         </select>
       </label>
       <p className="error">{errors.alternativeType?.message}</p>
+
+      <label>
+        Alternative Number <span className="optional"></span>
+        <input type="tel" maxLength={10} {...register("alternativeNumber")} placeholder="10-digit number" />
+      </label>
+      <p className="error">{errors.alternativeNumber?.message}</p>
+      
     </div>
   </div>
 )}
 
   
-            {currentStep === 1 && (
-              <div className="address-field">
-                <label>Country <span className="required">*</span></label>
-<Controller
-  name="country"
-  control={control}
-  render={({ field }) => (
-    <Select
-      {...field}
-      options={countryOptions}
-      isSearchable
-      placeholder="Select your Country"
-      classNamePrefix="react-select"
-      value={countryOptions.find(option => option.value === field.value)}
-      onChange={(selectedOption) => field.onChange(selectedOption.value)}
+        {currentStep === 1 && (
+  <div className="address-field">
+    {/* Country Dropdown */}
+    <label>Country <span className="required">*</span></label>
+    <Controller
+      name="country"
+      control={control}
+      render={({ field }) => (
+        <Select
+          {...field}
+          options={countryOptions}
+          isSearchable
+          placeholder="Select your Country"
+          classNamePrefix="react-select"
+          value={countryOptions.find(option => option.value === field.value)}
+          onChange={(selected) => {
+            field.onChange(selected.value);
+            // Reset dependent dropdowns here
+            setValue("state", "");
+            setValue("district", "");
+            setValue("mandal", "");
+            setValue("village", "");
+          }}
+        />
+      )}
     />
-  )}
-/>
-<p className="error">{errors.country?.message}</p>
-  
-                <label>
-  State <span className="required">*</span>
-  <select {...register("state")}>
-    <option value="">Select your state</option>
-    <option value="Andhra Pradesh">Andhra Pradesh</option>
-    <option value="Telangana">Telangana</option>
-    <option value="Karnataka">Karnataka</option>
-    <option value="Maharashtra">Maharashtra</option>
-    <option value="Tamil Nadu">Tamil Nadu</option>
-   </select>
-</label>
-  
-<label>
-  District <span className="required">*</span>
-</label>
-<Controller
-  name="district"
-  control={control}
-  render={({ field }) => (
-    <Select
-      {...field}
-      options={districtOptions}
-      isSearchable
-      placeholder="Select your district"
-      classNamePrefix="react-select"
-      value={districtOptions.find(option => option.value === field.value)}
-      onChange={(selectedOption) => field.onChange(selectedOption.value)}
-    />
-  )}
-/>
-<p className="error">{errors.district?.message}</p>
+    <p className="error">{errors.country?.message}</p>
 
-  
-                <label>
-  Mandal <span className="required">*</span>
-</label>
-<Controller
-  name="mandal"
-  control={control}
-  render={({ field }) => (
-    <Select
-      {...field}
-      options={mandalOptions}
-      isSearchable
-      placeholder="Select your mandal"
-      classNamePrefix="react-select"
-      value={mandalOptions.find(option => option.value === field.value)}
-      onChange={(selectedOption) => field.onChange(selectedOption.value)}
+    {/* State Dropdown */}
+    <label>State <span className="required">*</span></label>
+    <select {...register("state")}>
+      <option value="">Select your state</option>
+      <option value="Andhra Pradesh">Andhra Pradesh</option>
+      <option value="Telangana">Telangana</option>
+      <option value="Karnataka">Karnataka</option>
+      <option value="Maharashtra">Maharashtra</option>
+      <option value="Tamil Nadu">Tamil Nadu</option>
+    </select>
+    <p className="error">{errors.state?.message}</p>
+
+    {/* District Dropdown */}
+    <label>District <span className="required">*</span></label>
+    <Controller
+      name="district"
+      control={control}
+      render={({ field }) => (
+        <Select
+          {...field}
+          options={districtOptions}
+          isSearchable
+          placeholder="Select your District"
+          classNamePrefix="react-select"
+          value={districtOptions.find(option => option.value === field.value)}
+          onChange={(selected) => {
+            field.onChange(selected.value);
+            setValue("mandal", "");
+            setValue("village", "");
+          }}
+        />
+      )}
     />
-  )}
-/>
-<p className="error">{errors.mandal?.message}</p>
-  
-<label>
-  Village <span className="required">*</span>
-</label>
-<Controller
-  name="village"
-  control={control}
-  render={({ field }) => (
-    <Select
-      {...field}
-      options={villageOptions}
-      isSearchable
-      placeholder="Select your village"
-      classNamePrefix="react-select"
-      value={villageOptions.find(option => option.value === field.value)}
-      onChange={(selectedOption) => field.onChange(selectedOption.value)}
+    <p className="error">{errors.district?.message}</p>
+
+    {/* Mandal Dropdown */}
+    <label>Mandal <span className="required">*</span></label>
+    <Controller
+      name="mandal"
+      control={control}
+      render={({ field }) => (
+        <Select
+          {...field}
+          options={mandalOptions}
+          isSearchable
+          placeholder="Select your Mandal"
+          classNamePrefix="react-select"
+          value={mandalOptions.find(option => option.value === field.value)}
+          onChange={(selected) => {
+            field.onChange(selected.value);
+            setValue("village", "");
+          }}
+        />
+      )}
     />
-  )}
-/>
-<p className="error">{errors.village?.message}</p>
-  
-                <label>Pincode <span className="required">*</span>
-                  <input {...register("pincode")} />
-                </label>
-                <p>{errors.pincode?.message}</p>
-              </div>
-            )}
+    <p className="error">{errors.mandal?.message}</p>
+
+    {/* Village Dropdown */}
+    <label>Village <span className="required">*</span></label>
+    <Controller
+      name="village"
+      control={control}
+      render={({ field }) => (
+        <Select
+          {...field}
+          options={villageOptions}
+          isSearchable
+          placeholder="Select your Village"
+          classNamePrefix="react-select"
+          value={villageOptions.find(option => option.value === field.value)}
+          onChange={(selected) => field.onChange(selected.value)}
+        />
+      )}
+    />
+    <p className="error">{errors.village?.message}</p>
+
+    {/* Pincode Field */}
+    <label>Pincode <span className="required">*</span></label>
+    <input
+      {...register("pincode", {
+        required: "Pincode is required",
+        pattern: {
+          value: /^[1-9][0-9]{5}$/,
+          message: "Enter a valid 6-digit pincode",
+        },
+      })}
+    />
+    <p className="error">{errors.pincode?.message}</p>
+  </div>
+)}
+
+
 
 {currentStep === 2 && (
                 <>
@@ -628,7 +658,13 @@ useEffect(() => {
                     <p>{errors.surveyNumber?.message}</p>
 
                     <label>Total Land Holding (In Acres Nos) <span className="optional">(Optional)</span>
-                      <input {...register("totalLandHoldingStep3")} />
+                     <input
+                     type="number"
+                     step="any" 
+                   {...register("totalLandHoldingStep3", {
+                     valueAsNumber: true,
+                      })}
+                        />
                     </label>
                     <p>{errors.totalLandHolding?.message}</p>
 
@@ -762,7 +798,13 @@ useEffect(() => {
 
                 <div className="proposedform-columnright">
                 <label>Total Land Holding (In Acres) <span className="optional"></span>
-                <input {...register("totalLandHoldingStep4")} />
+                <input
+                     type="number"
+                     step="any" 
+                   {...register("totalLandHoldingStep4", {
+                     valueAsNumber: true,
+                      })}
+                        />
                 </label>
                 <p>{errors.totalLandHolding?.message}</p>
 
@@ -957,23 +999,28 @@ useEffect(() => {
         <p>{errors.ppbFile?.message} </p>
           </div>
                 )}
-               <div className="btn-group">  {currentStep === 0 ? (
-               <button  type="button"  onClick={async () => { const isValid = await trigger(); if (isValid)
-                 setCurrentStep(currentStep + 1); }} >
-                Next
-               </button>
-            ) : currentStep === totalSteps - 1 ? (
-              <>
+             <div className="btn-group">
+  {currentStep === 0 ? (
+    <button
+      type="button"
+      onClick={async () => {
+        const isValid = await trigger();
+        if (isValid) setCurrentStep(currentStep + 1);
+      }}
+    >
+      Next
+    </button>
+  ) : currentStep === totalSteps - 1 ? (
+    <>
       <button type="button" onClick={() => setCurrentStep(currentStep - 1)}>
         Previous
       </button>
       <button
-        type="submit"
+        type="button"
         onClick={async () => {
           const isValid = await trigger();
           if (isValid) {
-            await handleSubmit(onSubmit)();
-            alert("Please fill all required fields before submitting.");
+            await handleSubmit(onSubmit)(); 
           }
         }}
       >
@@ -997,6 +1044,7 @@ useEffect(() => {
     </>
   )}
 </div>
+
 
 
           </form>
